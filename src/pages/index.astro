@@ -1,5 +1,71 @@
 ---
+import { getCollection } from "astro:content";
+import { parse } from "yaml";
+import courseYaml from "../data/course.yml?raw";
+import deliverablesYaml from "../data/deliverables.yml?raw";
+import CourseProgress from "../components/CourseProgress.astro";
+import DeadlineCard from "../components/DeadlineCard.astro";
+import ContentCard from "../components/cards/ContentCard.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
+import {
+  buildHomepageSummary,
+  selectRecentPublished,
+  type HomepageDeliverable,
+} from "../utils/homepage";
+
+interface CourseData {
+  code: string;
+  name: string;
+  institution: string;
+  term: string;
+  startsOn: string;
+  endsOn: string;
+  instructors: string[];
+  meetings: Array<{
+    weekday: string;
+    startsAt: string;
+    endsAt: string;
+    room: string;
+  }>;
+  objectives: string[];
+}
+
+const course = parse(courseYaml) as CourseData;
+const deliverables = parse(deliverablesYaml) as HomepageDeliverable[];
+const summary = buildHomepageSummary(deliverables, course.endsOn);
+
+const collectionNames = ["notes", "works", "library", "projects"] as const;
+const collectionLabels: Record<(typeof collectionNames)[number], string> = {
+  notes: "anotação",
+  works: "trabalho",
+  library: "biblioteca",
+  projects: "código",
+};
+const contentFiles = import.meta.glob("../content/**/*.md");
+const collectionEntries = await Promise.all(
+  collectionNames.map(async (collection) => {
+    const hasContent = Object.keys(contentFiles).some((path) =>
+      path.includes(`/content/${collection}/`),
+    );
+
+    if (!hasContent) {
+      return [];
+    }
+
+    return (await getCollection(collection)).map(({ id, data }) => ({
+      id,
+      title: data.title,
+      description: data.description,
+      publishedAt: data.publishedAt,
+      draft: data.draft,
+      kind: collectionLabels[collection],
+    }));
+  }),
+);
+const recentContent = selectRecentPublished(collectionEntries.flat(), 3);
+const meetingSummary = course.meetings
+  .map(({ weekday, startsAt, endsAt }) => `${weekday}, ${startsAt}–${endsAt}`)
+  .join("; ");
 ---
 
 <BaseLayout
@@ -7,14 +73,82 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   description="Caderno público da disciplina CCM-002 — Metodologia de Pesquisa em Ciência da Computação."
 >
   <section class="hero" aria-labelledby="titulo-principal">
-    <p class="eyebrow">UFABC · 2026.3</p>
-    <h1 id="titulo-principal">Metodologia de Pesquisa em Ciência da Computação</h1>
+    <p class="eyebrow">{course.institution} · {course.term}</p>
+    <h1 id="titulo-principal">{course.name}</h1>
     <p class="lead">
-      Um caderno público para acompanhar leituras, perguntas, trabalhos e aprendizados da disciplina
-      CCM-002.
+      Um caderno público para acompanhar leituras, perguntas, trabalhos e aprendizados da disciplina{" "}
+      {course.code}.
     </p>
     <p class="context-note">
       Conteúdo acadêmico em construção. Os prazos oficiais continuam sendo os publicados no Moodle.
     </p>
+  </section>
+
+  <div class="home-dashboard">
+    <section class="course-summary" aria-label="Resumo da disciplina">
+      <p class="section-kicker">Visão geral</p>
+      <h2 id="course-summary-title">Pesquisar com método, comunicar com rigor</h2>
+      <p>{course.objectives[0]}</p>
+      <dl>
+        <div>
+          <dt>Docentes</dt>
+          <dd>{course.instructors.join(" e ")}</dd>
+        </div>
+        <div>
+          <dt>Encontros</dt>
+          <dd>{meetingSummary}, sala <span class="nowrap">{course.meetings[0]?.room}</span></dd>
+        </div>
+      </dl>
+    </section>
+
+    <DeadlineCard state={summary.state} deliverable={summary.nextDeliverable} />
+    <CourseProgress
+      progress={summary.progress}
+      courseStartsOn={course.startsOn}
+      courseEndsOn={course.endsOn}
+    />
+  </div>
+
+  <section class="learning-paths" aria-labelledby="paths-title">
+    <div class="section-heading">
+      <p class="section-kicker">Percurso</p>
+      <h2 id="paths-title">Três movimentos da disciplina</h2>
+    </div>
+    <div class="path-grid">
+      <article>
+        <span aria-hidden="true">01</span>
+        <h3>Aprender</h3>
+        <p>Ler criticamente métodos, evidências e contribuições da literatura científica.</p>
+      </article>
+      <article>
+        <span aria-hidden="true">02</span>
+        <h3>Produzir</h3>
+        <p>Transformar perguntas em resumos, revisão de literatura e pré-projeto verificável.</p>
+      </article>
+      <article>
+        <span aria-hidden="true">03</span>
+        <h3>Refletir</h3>
+        <p>Registrar decisões, limites, aprendizados e o uso responsável de inteligência artificial.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="recent-content" aria-labelledby="recent-title" aria-label="Conteúdo recente">
+    <div class="section-heading">
+      <p class="section-kicker">Portfólio</p>
+      <h2 id="recent-title">Conteúdo recente</h2>
+    </div>
+    {
+      recentContent.length > 0 ? (
+        <div class="content-grid">
+          {recentContent.map((item) => <ContentCard {...item} />)}
+        </div>
+      ) : (
+        <p class="empty-state">
+          <strong>Nenhum conteúdo publicado ainda.</strong>
+          Os primeiros trabalhos e anotações aparecerão aqui depois de revisados.
+        </p>
+      )
+    }
   </section>
 </BaseLayout>

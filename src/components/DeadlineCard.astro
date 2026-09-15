@@ -1,0 +1,93 @@
+---
+import { formatCourseDate, type DeliverableStatus } from "../utils/dates";
+
+interface Props {
+  state: "upcoming" | "no-upcoming" | "completed";
+  deliverable: {
+    title: string;
+    dueAt: string;
+    assessment: string;
+    status: DeliverableStatus;
+    restrictedSource: boolean;
+  } | null;
+}
+
+const { state, deliverable } = Astro.props;
+const statusLabels: Record<DeliverableStatus, string> = {
+  planned: "Planejada",
+  "in-progress": "Em andamento",
+  completed: "Concluída",
+  reviewed: "Revisada",
+  rescheduled: "Prazo alterado",
+};
+---
+
+<section class="deadline-card" aria-label="Situação da próxima entrega">
+  {
+    state === "upcoming" && deliverable ? (
+      <>
+        <p class="card-kicker">Próxima entrega · {deliverable.assessment}</p>
+        <h2 id="deadline-title">{deliverable.title}</h2>
+        <p class="deadline-date">
+          Até <time datetime={deliverable.dueAt}>{formatCourseDate(deliverable.dueAt)}</time>
+        </p>
+        <p class="status-line">Status: <strong>{statusLabels[deliverable.status]}</strong></p>
+        {deliverable.restrictedSource && (
+          <p class="source-note">Detalhes oficiais no Moodle (acesso restrito).</p>
+        )}
+      </>
+    ) : state === "completed" ? (
+      <>
+        <p class="card-kicker">Percurso acadêmico</p>
+        <h2 id="deadline-title">Disciplina concluída</h2>
+        <p>O período letivo terminou. O portfólio permanece disponível como registro do trabalho realizado.</p>
+      </>
+    ) : (
+      <>
+        <p class="card-kicker">Próxima entrega</p>
+        <h2 id="deadline-title">Sem próxima entrega</h2>
+        <p>Não há prazos futuros cadastrados. Consulte o Moodle para confirmar eventuais atualizações.</p>
+      </>
+    )
+  }
+</section>
+
+<style>
+  .deadline-card {
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    color: var(--color-surface);
+    background: var(--color-primary-strong);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card-kicker,
+  .deadline-date,
+  .status-line,
+  .source-note {
+    font-size: var(--step--1);
+  }
+
+  .card-kicker {
+    margin-block-end: var(--space-3);
+    color: #d9eee8;
+    font-weight: 800;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+  }
+
+  h2 {
+    font-size: var(--step-1);
+  }
+
+  .deadline-date {
+    margin-block-end: var(--space-2);
+  }
+
+  .source-note {
+    margin-block: var(--space-4) 0;
+    padding-block-start: var(--space-3);
+    border-block-start: 1px solid rgb(255 255 255 / 25%);
+    color: #d9eee8;
+  }
+</style>
