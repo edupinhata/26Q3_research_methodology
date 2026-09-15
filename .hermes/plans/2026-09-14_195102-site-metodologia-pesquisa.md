@@ -513,7 +513,34 @@ Não implementar no MVP. Quando houver aproximadamente 15–20 páginas, adicion
 
 ---
 
-## 12. Backlog posterior ao MVP
+## 12. Melhorias técnicas não bloqueantes
+
+Pontos identificados durante revisões de código. Eles não impedem a conclusão das tarefas originais e devem ser avaliados quando a área relacionada voltar a ser modificada.
+
+### Dados e validação
+
+- [ ] Criar schemas Zod compartilhados para validar integralmente `course.yml`, `schedule.yml` e `deliverables.yml`.
+- [ ] Verificar exatamente IDs, prazos, tipos, avaliações e intervalos dos dados-base.
+
+### Utilitários de datas
+
+- [ ] Testar igualdade exata com o instante do prazo.
+- [ ] Testar uma data de referência inválida.
+- [ ] Definir e testar o desempate entre entregas com o mesmo prazo.
+- [ ] Testar `dueAt` inválido em `findNextDeliverable`.
+
+### Calendário
+
+- [ ] Antes da Tarefa 6, decidir se `schedule.yml` conterá somente marcos ou todas as aulas, feriados e assuntos.
+
+### Conteúdo
+
+- [ ] Antes da Tarefa 7, decidir se o projeto realmente usará MDX.
+- [ ] Se aprovado, configurar a integração MDX e ampliar os loaders das collections.
+
+---
+
+## 13. Backlog posterior ao MVP
 
 - Busca estática com Pagefind.
 - Dark mode.
@@ -526,7 +553,7 @@ Não implementar no MVP. Quando houver aproximadamente 15–20 páginas, adicion
 
 ---
 
-## 13. Definição do MVP
+## 14. Definição do MVP
 
 O MVP está pronto quando:
 

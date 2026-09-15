@@ -1,0 +1,38 @@
+code: "CCM-002"
+name: "Metodologia de Pesquisa em Ciência da Computação"
+institution: "UFABC"
+term: "2026.3"
+timezone: "America/Sao_Paulo"
+startsOn: "2026-09-14"
+endsOn: "2026-12-16"
+lastCheckedAt: "2026-09-14"
+officialSource:
+  label: "Moodle"
+  restricted: true
+  note: "Fonte oficial dos prazos; este site é atualizado manualmente."
+instructors:
+  - "Carlos Alberto Kamienski"
+  - "Jesús Pascual Mena-Chalco"
+meetings:
+  - weekday: "segunda-feira"
+    startsAt: "16:00"
+    endsAt: "18:00"
+    room: "L-408-2"
+  - weekday: "quarta-feira"
+    startsAt: "14:00"
+    endsAt: "16:00"
+    room: "L-408-2"
+assessment:
+  - id: "A1"
+    label: "Participação, discussões e bancas"
+    weight: 1
+  - id: "A2"
+    label: "Resumos e survey/review"
+    weight: 2
+  - id: "A3"
+    label: "Pré-projeto"
+    weight: 3
+objectives:
+  - "Compreender fundamentos e práticas da pesquisa científica em Computação."
+  - "Formular perguntas de pesquisa e realizar leitura crítica da literatura."
+  - "Planejar e comunicar um projeto de pesquisa com rigor acadêmico."
