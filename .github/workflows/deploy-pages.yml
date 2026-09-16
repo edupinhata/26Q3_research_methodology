@@ -43,6 +43,9 @@ jobs:
       - name: Build site
         run: npm run build
 
+      - name: Reject drafts and secrets in the public artifact
+        run: npm run verify:build
+
       - name: Run end-to-end and accessibility tests
         run: npm run test:e2e
 

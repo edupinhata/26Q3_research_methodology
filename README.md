@@ -33,6 +33,9 @@ A captura é gerada a partir do build de produção e funciona como atalho para 
 - layout responsivo a partir de 320 px;
 - navegação por teclado, foco visível e landmarks semânticos;
 - datas formatadas em português sem deslocamento indevido de dia por timezone;
+- sitemap, feed RSS, favicon e imagem de compartilhamento próprios;
+- metadados Open Graph, Twitter Card e dados estruturados `Course`/`Article`;
+- impressão A4 validada em navegador para trabalhos autorais;
 - publicação estática automatizada no GitHub Pages.
 
 Os conteúdos publicados formam o primeiro recorte público do caderno. Itens incompletos ou ainda não revisados devem permanecer com `draft: true` e não são gerados no build de produção.
@@ -99,8 +102,15 @@ Execute os gates de qualidade a partir da raiz do projeto:
 npm test
 npm run check
 npm run build
+npm run verify:build
 npm run test:e2e
 npm audit --audit-level=high
+```
+
+Para regenerar deterministicamente a imagem Open Graph após uma mudança de identidade visual:
+
+```bash
+npm run generate:og
 ```
 
 Os comandos verificam, respectivamente:
@@ -108,8 +118,9 @@ Os comandos verificam, respectivamente:
 1. regras de domínio, datas, progresso e dados estruturados;
 2. tipos TypeScript e componentes Astro;
 3. geração das páginas estáticas em `dist/`;
-4. navegação real, base path, viewport de 320 px e acessibilidade automatizada;
-5. vulnerabilidades conhecidas nas dependências npm.
+4. exclusão de drafts, formatos públicos não classificados e padrões conhecidos de credenciais, inclusive em variantes percentuais, HTML/JavaScript, Base64, UTF-16 e artefatos binários;
+5. navegação real, base path, viewport de 320 px e acessibilidade automatizada;
+6. vulnerabilidades conhecidas nas dependências npm.
 
 O Playwright inicia e encerra automaticamente um servidor de preview durante os testes E2E.
 
@@ -172,8 +183,11 @@ O workflow `.github/workflows/deploy-pages.yml` é executado em pushes para `mai
 1. instala dependências com `npm ci`;
 2. executa Astro Check e os testes unitários;
 3. gera o build estático;
-4. executa os testes E2E e de acessibilidade;
-5. publica `dist/` no GitHub Pages somente após todos os gates passarem.
+4. bloqueia drafts publicados, formatos desconhecidos e padrões conhecidos de credenciais no artefato;
+5. executa os testes E2E e de acessibilidade;
+6. publica `dist/` no GitHub Pages somente após todos os gates passarem.
+
+O scanner é uma defesa automatizada em profundidade, não substitui a revisão humana de documentos, imagens e metadados antes da publicação.
 
 Nenhuma credencial de deploy precisa ser adicionada ao repositório: o GitHub Pages utiliza permissões temporárias do próprio workflow.
 

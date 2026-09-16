@@ -74,7 +74,18 @@ describe("GitHub Pages deployment workflow", () => {
     expect(commands).toContain("npm run check");
     expect(commands).toContain("npm test");
     expect(commands).toContain("npm run build");
+    expect(commands).toContain("npm run verify:build");
     expect(commands).toContain("npm run test:e2e");
+
+    const buildIndex = workflow.jobs.build.steps.findIndex(({ run }) => run === "npm run build");
+    const verifyIndex = workflow.jobs.build.steps.findIndex(({ run }) => run === "npm run verify:build");
+    const e2eIndex = workflow.jobs.build.steps.findIndex(({ run }) => run === "npm run test:e2e");
+    const uploadIndex = workflow.jobs.build.steps.findIndex(({ uses }) =>
+      uses?.startsWith("actions/upload-pages-artifact@"),
+    );
+    expect(buildIndex).toBeLessThan(verifyIndex);
+    expect(verifyIndex).toBeLessThan(e2eIndex);
+    expect(e2eIndex).toBeLessThan(uploadIndex);
     expect(workflow.jobs.deploy.needs).toBe("build");
   });
 
