@@ -8,3 +8,20 @@ test("serves the home page from the GitHub Pages base path", async ({ request })
   expect(html).toContain("<title>CCM-002 — Metodologia de Pesquisa</title>");
   expect(html).toContain('href="/26Q3_research_methodology"');
 });
+
+test("presents the course, deadline, progress, and published-content regions", async ({ page }) => {
+  await page.goto("/26Q3_research_methodology/");
+
+  await expect(
+    page.getByRole("heading", { level: 1, name: "Metodologia de Pesquisa em Ciência da Computação" }),
+  ).toBeVisible();
+  await expect(page.getByRole("region", { name: "Resumo da disciplina" })).toBeVisible();
+  await expect(page.getByRole("region", { name: "Situação da próxima entrega" })).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "Progresso das entregas" })).toHaveAttribute(
+    "max",
+    "10",
+  );
+  await expect(page.getByRole("region", { name: "Conteúdo recente" })).toContainText(
+    "Nenhum conteúdo publicado ainda",
+  );
+});

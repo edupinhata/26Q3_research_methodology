@@ -201,6 +201,111 @@ main {
   font-size: var(--step--1);
 }
 
+.home-dashboard {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(17rem, 0.75fr);
+  gap: var(--space-5);
+  margin-block-start: var(--space-8);
+}
+
+.course-summary {
+  grid-row: span 2;
+  padding: var(--space-7);
+  border: var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-soft);
+}
+
+.section-kicker {
+  margin-block-end: var(--space-3);
+  color: var(--color-primary);
+  font-size: var(--step--1);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.course-summary dl {
+  display: grid;
+  gap: var(--space-4);
+  margin: var(--space-6) 0 0;
+}
+
+.course-summary dl div {
+  padding-block-start: var(--space-4);
+  border-block-start: var(--border-subtle);
+}
+
+.course-summary dt {
+  color: var(--color-primary);
+  font-size: var(--step--1);
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.course-summary dd {
+  margin: var(--space-1) 0 0;
+  color: var(--color-ink-soft);
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+.learning-paths,
+.recent-content {
+  margin-block-start: var(--space-8);
+}
+
+.section-heading {
+  margin-block-end: var(--space-5);
+}
+
+.path-grid,
+.content-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.path-grid article {
+  padding: var(--space-5);
+  border-block-start: 0.2rem solid var(--color-accent);
+  background: color-mix(in srgb, var(--color-surface) 75%, transparent);
+}
+
+.path-grid span {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: var(--step--1);
+  font-weight: 800;
+}
+
+.path-grid h3 {
+  margin-block-start: var(--space-3);
+}
+
+.path-grid p {
+  margin: 0;
+  color: var(--color-ink-soft);
+}
+
+.empty-state {
+  max-width: none;
+  padding: var(--space-6);
+  border: 1px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-ink-soft);
+  background: var(--color-surface);
+}
+
+.empty-state strong {
+  display: block;
+  margin-block-end: var(--space-1);
+  color: var(--color-ink);
+}
+
 .site-footer {
   display: flex;
   flex-wrap: wrap;
@@ -239,6 +344,17 @@ main {
 
   .hero {
     padding-inline-start: var(--space-4);
+  }
+
+  .home-dashboard,
+  .path-grid,
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .course-summary {
+    grid-row: auto;
+    padding: var(--space-6);
   }
 }
 

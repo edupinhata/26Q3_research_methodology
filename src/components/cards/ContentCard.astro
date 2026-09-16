@@ -1,0 +1,45 @@
+---
+import { formatPublishedDate } from "../../utils/homepage";
+
+interface Props {
+  title: string;
+  description: string;
+  publishedAt: Date;
+  kind: string;
+}
+
+const { title, description, publishedAt, kind } = Astro.props;
+const formattedDate = formatPublishedDate(publishedAt);
+---
+
+<article class="content-card">
+  <p class="content-meta">{kind} · <time datetime={publishedAt.toISOString()}>{formattedDate}</time></p>
+  <h3>{title}</h3>
+  <p>{description}</p>
+</article>
+
+<style>
+  .content-card {
+    height: 100%;
+    padding: var(--space-5);
+    border: var(--border-subtle);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .content-meta {
+    color: var(--color-primary);
+    font-size: var(--step--1);
+    font-weight: 750;
+    text-transform: capitalize;
+  }
+
+  h3 {
+    font-size: var(--step-1);
+  }
+
+  p:last-child {
+    margin: 0;
+    color: var(--color-ink-soft);
+  }
+</style>
