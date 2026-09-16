@@ -1,0 +1,35 @@
+---
+import { getCollection } from "astro:content";
+import ContentIndex from "../../components/ContentIndex.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { selectPublishedContent, type AcademicContent } from "../../utils/content";
+
+const base = import.meta.env.BASE_URL;
+const basePath = base.endsWith("/") ? base.slice(0, -1) : base;
+const sourceEntries = await getCollection("projects");
+const entries: Array<AcademicContent & { href: string }> = selectPublishedContent(
+  sourceEntries.map((entry) => ({
+    id: entry.id,
+    href: `${basePath}/codigo/${entry.id}/`,
+    data: {
+      title: entry.data.title,
+      description: entry.data.description,
+      publishedAt: entry.data.publishedAt,
+      tags: entry.data.tags,
+      draft: entry.data.draft,
+      category: entry.data.kind,
+      status: entry.data.status,
+    },
+  })),
+);
+---
+
+<BaseLayout title="Código e experimentos — CCM-002" description="Experimentos, notebooks, scripts e dados documentados para reprodução e reuso.">
+  <ContentIndex
+    eyebrow="Prática reprodutível"
+    title="Código e experimentos"
+    introduction="Experimentos, notebooks, scripts e dados documentados para reprodução e reuso."
+    emptyMessage="Nenhum projeto publicado ainda."
+    entries={entries}
+  />
+</BaseLayout>

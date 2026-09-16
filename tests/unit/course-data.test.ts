@@ -102,13 +102,15 @@ describe("typed course source data", () => {
     );
   });
 
-  it("defines all four academic content collections with draft filtering metadata", () => {
-    const source = readFileSync(resolve(projectRoot, "src/content.config.ts"), "utf8");
+  it("wires all four academic collections to their shared typed schemas", () => {
+    const configSource = readFileSync(resolve(projectRoot, "src/content.config.ts"), "utf8");
+    const schemaSource = readFileSync(resolve(projectRoot, "src/content/schemas.ts"), "utf8");
 
     for (const collection of ["notes", "works", "library", "projects"]) {
-      expect(source).toContain(`${collection}:`);
+      expect(configSource).toContain(`${collection}: ${collection}Collection`);
+      expect(configSource).toContain(`academicSchemas.${collection}`);
     }
-    expect(source).toContain("draft: z.boolean().default(true)");
-    expect(source).toContain("aiUsage:");
+    expect(schemaSource).toContain("draft: z.boolean");
+    expect(schemaSource).toContain("aiUsage: requiredText");
   });
 });

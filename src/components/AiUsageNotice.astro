@@ -1,0 +1,12 @@
+---
+interface Props {
+  statement: string;
+}
+
+const { statement } = Astro.props;
+---
+
+<aside class="ai-usage-notice" aria-labelledby="ai-usage-title">
+  <h2 id="ai-usage-title">Declaração de uso de IA</h2>
+  <p>{statement}</p>
+</aside>

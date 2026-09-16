@@ -535,8 +535,12 @@ Pontos identificados durante revisões de código. Eles não impedem a conclusã
 
 ### Conteúdo
 
-- [ ] Antes da Tarefa 7, decidir se o projeto realmente usará MDX.
-- [ ] Se aprovado, configurar a integração MDX e ampliar os loaders das collections.
+- [x] Antes da Tarefa 7, decidir se o projeto realmente usará MDX: manter Markdown no MVP e só adicionar MDX quando houver necessidade editorial concreta de componentes embutidos.
+- [ ] Se uma necessidade de MDX surgir, configurar a integração e ampliar os loaders das collections.
+
+### Testes editoriais
+
+- [ ] Adicionar fixtures E2E permanentes para páginas de detalhe, filtros, navegação anterior/próxima e exclusão de drafts do build.
 
 ---
 

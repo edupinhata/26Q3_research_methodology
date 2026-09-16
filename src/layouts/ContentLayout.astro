@@ -1,0 +1,94 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import { formatPublishedDate } from "../utils/homepage";
+
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface NavigationItem {
+  href: string;
+  title: string;
+}
+
+interface Revision {
+  date: Date;
+  description: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  publishedAt: Date;
+  category: string;
+  status?: string;
+  tags: string[];
+  headings: Heading[];
+  revisions?: Revision[];
+  older?: NavigationItem | null;
+  newer?: NavigationItem | null;
+}
+
+const {
+  title,
+  description,
+  publishedAt,
+  category,
+  status,
+  tags,
+  headings,
+  revisions = [],
+  older = null,
+  newer = null,
+} = Astro.props;
+const tableOfContents = headings.filter(({ depth }) => depth === 2 || depth === 3);
+---
+
+<BaseLayout title={`${title} — CCM-002`} description={description}>
+  <article class="content-article">
+    <header class="content-header">
+      <p class="eyebrow">{category}{status ? ` · ${status}` : ""}</p>
+      <h1>{title}</h1>
+      <p class="lead">{description}</p>
+      <p class="content-meta">
+        Publicado em <time datetime={publishedAt.toISOString()}>{formatPublishedDate(publishedAt)}</time>
+      </p>
+      {tags.length > 0 && <ul class="tag-list" aria-label="Tags">{tags.map((tag) => <li>{tag}</li>)}</ul>}
+      <slot name="metadata" />
+    </header>
+
+    {tableOfContents.length > 0 && (
+      <nav class="table-of-contents" aria-label="Sumário deste conteúdo">
+        <h2>Sumário</h2>
+        <ol>
+          {tableOfContents.map((heading) => (
+            <li class:list={{ "toc-subitem": heading.depth === 3 }}><a href={`#${heading.slug}`}>{heading.text}</a></li>
+          ))}
+        </ol>
+      </nav>
+    )}
+
+    <div class="prose"><slot /></div>
+    <slot name="notice" />
+
+    {revisions.length > 0 && (
+      <section class="revision-history" aria-labelledby="revision-title">
+        <h2 id="revision-title">Histórico de revisões</h2>
+        <ol>
+          {revisions.toSorted((a, b) => b.date.getTime() - a.date.getTime()).map((revision) => (
+            <li><time datetime={revision.date.toISOString()}>{formatPublishedDate(revision.date)}</time> — {revision.description}</li>
+          ))}
+        </ol>
+      </section>
+    )}
+
+    {(older || newer) && (
+      <nav class="content-pagination" aria-label="Conteúdos relacionados">
+        {older ? <a rel="prev" href={older.href}>← Mais antigo: {older.title}</a> : <span />}
+        {newer && <a rel="next" href={newer.href}>Mais recente: {newer.title} →</a>}
+      </nav>
+    )}
+  </article>
+</BaseLayout>
