@@ -3,7 +3,7 @@
   type: "summary"
   assessment: "A2"
   dueAt: "2026-09-20T23:59:00-03:00"
-  status: "planned"
+  status: "in-progress"
   restrictedSource: true
 - id: "resumo-2-how-to-read-a-paper"
   title: "Resumo 2 — How to Read a Paper"
