@@ -22,6 +22,7 @@ interface CourseData {
   instructors: string[];
   meetings: Array<{ weekday: string; startsAt: string; endsAt: string; room: string }>;
   assessment: Array<{ id: string; label: string; weight: number }>;
+  topics: string[];
 }
 
 interface ScheduleEvent {
@@ -29,7 +30,7 @@ interface ScheduleEvent {
   date: string;
   endDate?: string;
   title: string;
-  type: "class" | "deadline" | "presentation" | "replacement";
+  type: "class" | "holiday" | "deadline" | "presentation" | "replacement";
 }
 
 interface Deliverable {
@@ -63,6 +64,7 @@ describe("typed course source data", () => {
       { id: "A2", label: "Resumos e survey/review", weight: 2 },
       { id: "A3", label: "Pré-projeto", weight: 3 },
     ]);
+    expect(course.topics).toHaveLength(6);
   });
 
   it("keeps schedule events unique and chronological", () => {
@@ -71,9 +73,15 @@ describe("typed course source data", () => {
 
     expect(new Set(ids).size).toBe(ids.length);
     expect(sortChronologically(schedule)).toEqual(schedule);
+    expect(schedule).toHaveLength(35);
+    expect(new Set(schedule.map(({ type }) => type))).toEqual(
+      new Set(["class", "holiday", "deadline", "presentation", "replacement"]),
+    );
     expect(schedule).toEqual(
       expect.arrayContaining([
         expect.objectContaining({ date: "2026-09-14", type: "class" }),
+        expect.objectContaining({ date: "2026-10-12", type: "holiday" }),
+        expect.objectContaining({ date: "2026-11-02", type: "holiday" }),
         expect.objectContaining({ date: "2026-11-30", endDate: "2026-12-09", type: "presentation" }),
         expect.objectContaining({ date: "2026-12-14", type: "replacement" }),
         expect.objectContaining({ date: "2026-12-16", type: "replacement" }),

@@ -1,0 +1,34 @@
+---
+import StatusBadge from "./StatusBadge.astro";
+import { formatTimelineDate, type TimelineEvent } from "../utils/timeline";
+
+interface Props {
+  events: TimelineEvent[];
+}
+
+const { events } = Astro.props;
+---
+
+<section class="timeline-region" aria-label="Calendário cronológico">
+  <ol class="timeline-list">
+    {
+      events.map((event) => (
+        <li class:list={["timeline-item", `timeline-item--${event.type}`]}>
+          <article>
+            <div class="timeline-date">
+              <time datetime={event.date}>{formatTimelineDate(event.date)}</time>
+              {event.endDate && (
+                <>
+                  {" a "}
+                  <time datetime={event.endDate}>{formatTimelineDate(event.endDate)}</time>
+                </>
+              )}
+            </div>
+            <StatusBadge type={event.type} />
+            <h2>{event.title}</h2>
+          </article>
+        </li>
+      ))
+    }
+  </ol>
+</section>

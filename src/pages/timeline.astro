@@ -1,0 +1,28 @@
+---
+import { parse } from "yaml";
+import Timeline from "../components/Timeline.astro";
+import scheduleYaml from "../data/schedule.yml?raw";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { sortChronologically } from "../utils/dates";
+import type { TimelineEvent } from "../utils/timeline";
+
+const events = sortChronologically(parse(scheduleYaml) as TimelineEvent[]);
+---
+
+<BaseLayout
+  title="Timeline da disciplina — CCM-002"
+  description="Calendário cronológico de aulas, feriados, prazos, apresentações e reposições da CCM-002."
+>
+  <header class="page-intro">
+    <p class="eyebrow">CCM-002 · 2026.3</p>
+    <h1>Timeline da disciplina</h1>
+    <p class="lead">
+      Aulas, feriados, entregas e marcos reunidos em ordem cronológica para acompanhar o quadrimestre.
+    </p>
+    <p class="context-note">
+      Calendário conferido manualmente. O Moodle permanece como fonte oficial dos prazos.
+    </p>
+  </header>
+
+  <Timeline events={events} />
+</BaseLayout>
