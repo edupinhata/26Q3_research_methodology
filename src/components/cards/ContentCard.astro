@@ -6,16 +6,20 @@ interface Props {
   description: string;
   publishedAt: Date;
   kind: string;
+  href?: string;
+  status?: string;
+  tags?: string[];
 }
 
-const { title, description, publishedAt, kind } = Astro.props;
+const { title, description, publishedAt, kind, href, status, tags = [] } = Astro.props;
 const formattedDate = formatPublishedDate(publishedAt);
 ---
 
 <article class="content-card">
-  <p class="content-meta">{kind} · <time datetime={publishedAt.toISOString()}>{formattedDate}</time></p>
-  <h3>{title}</h3>
+  <p class="content-meta">{kind}{status ? ` · ${status}` : ""} · <time datetime={publishedAt.toISOString()}>{formattedDate}</time></p>
+  <h3>{href ? <a href={href}>{title}</a> : title}</h3>
   <p>{description}</p>
+  {tags.length > 0 && <ul class="card-tags" aria-label="Tags">{tags.map((tag) => <li>{tag}</li>)}</ul>}
 </article>
 
 <style>
@@ -38,8 +42,29 @@ const formattedDate = formatPublishedDate(publishedAt);
     font-size: var(--step-1);
   }
 
-  p:last-child {
+  h3 a {
+    color: inherit;
+    text-decoration-color: var(--color-accent);
+  }
+
+  p:last-of-type {
     margin: 0;
     color: var(--color-ink-soft);
+  }
+
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .card-tags li {
+    padding: var(--space-1) var(--space-2);
+    border-radius: 999px;
+    background: var(--color-primary-soft);
+    font-size: var(--step--1);
   }
 </style>

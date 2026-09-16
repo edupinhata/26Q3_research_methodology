@@ -17,8 +17,23 @@
 
   .skip-link,
   .site-header,
-  .site-footer {
+  .site-footer,
+  .content-filters,
+  .filter-result,
+  .content-pagination {
     display: none !important;
+  }
+
+  .content-article {
+    width: 100%;
+    margin: 0;
+  }
+
+  .table-of-contents,
+  .ai-usage-notice,
+  .revision-history {
+    box-shadow: none;
+    break-inside: avoid;
   }
 
   main {

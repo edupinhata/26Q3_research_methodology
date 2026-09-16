@@ -41,6 +41,14 @@ const collectionLabels: Record<(typeof collectionNames)[number], string> = {
   library: "biblioteca",
   projects: "código",
 };
+const collectionRoutes: Record<(typeof collectionNames)[number], string> = {
+  notes: "anotacoes",
+  works: "trabalhos",
+  library: "biblioteca",
+  projects: "codigo",
+};
+const base = import.meta.env.BASE_URL;
+const basePath = base.endsWith("/") ? base.slice(0, -1) : base;
 const contentFiles = import.meta.glob("../content/**/*.md");
 const collectionEntries = await Promise.all(
   collectionNames.map(async (collection) => {
@@ -59,6 +67,7 @@ const collectionEntries = await Promise.all(
       publishedAt: data.publishedAt,
       draft: data.draft,
       kind: collectionLabels[collection],
+      href: `${basePath}/${collectionRoutes[collection]}/${id}/`,
     }));
   }),
 );

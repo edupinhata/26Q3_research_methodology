@@ -1,0 +1,111 @@
+---
+import ContentCard from "./cards/ContentCard.astro";
+import { collectFilterOptions, type AcademicContent } from "../utils/content";
+
+interface IndexEntry extends AcademicContent {
+  href: string;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  introduction: string;
+  emptyMessage: string;
+  entries: IndexEntry[];
+}
+
+const { eyebrow, title, introduction, emptyMessage, entries } = Astro.props;
+const filters = collectFilterOptions(entries);
+const normalize = (value: string) => value.trim().toLocaleLowerCase("pt-BR");
+---
+
+<section class="page-intro" aria-labelledby="collection-title">
+  <p class="eyebrow">{eyebrow}</p>
+  <h1 id="collection-title">{title}</h1>
+  <p class="lead">{introduction}</p>
+</section>
+
+{
+  entries.length === 0 ? (
+    <p class="empty-state"><strong>{emptyMessage}</strong> O conteúdo aparecerá aqui depois de revisado.</p>
+  ) : (
+    <section class="collection-browser" aria-labelledby="collection-results-title" data-content-browser>
+      <h2 id="collection-results-title">Conteúdo publicado</h2>
+      <form class="content-filters" aria-label="Filtros de conteúdo">
+        <label>
+          Tipo
+          <select name="category">
+            <option value="">Todos</option>
+            {filters.categories.map((value) => <option value={normalize(value)}>{value}</option>)}
+          </select>
+        </label>
+        <label>
+          Status
+          <select name="status">
+            <option value="">Todos</option>
+            {filters.statuses.map((value) => <option value={normalize(value)}>{value}</option>)}
+          </select>
+        </label>
+        <label>
+          Tag
+          <select name="tag">
+            <option value="">Todas</option>
+            {filters.tags.map((value) => <option value={normalize(value)}>{value}</option>)}
+          </select>
+        </label>
+        <button type="reset">Limpar filtros</button>
+      </form>
+      <p class="filter-result" aria-live="polite" data-filter-result></p>
+      <ul class="content-grid collection-grid" data-content-list>
+        {entries.map((entry) => (
+          <li
+            data-category={normalize(entry.data.category)}
+            data-status={entry.data.status ? normalize(entry.data.status) : ""}
+            data-tags={entry.data.tags.map(normalize).join("|")}
+          >
+            <ContentCard
+              title={entry.data.title}
+              description={entry.data.description}
+              publishedAt={entry.data.publishedAt}
+              kind={entry.data.category}
+              href={entry.href}
+              status={entry.data.status}
+              tags={entry.data.tags}
+            />
+          </li>
+        ))}
+      </ul>
+      <p class="empty-state" data-filter-empty hidden><strong>Nenhum conteúdo corresponde aos filtros.</strong></p>
+    </section>
+  )
+}
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-content-browser]").forEach((browser) => {
+    const form = browser.querySelector<HTMLFormElement>("form");
+    const items = [...browser.querySelectorAll<HTMLElement>("[data-content-list] > li")];
+    const result = browser.querySelector<HTMLElement>("[data-filter-result]");
+    const empty = browser.querySelector<HTMLElement>("[data-filter-empty]");
+    if (!form || !result || !empty) return;
+
+    const applyFilters = () => {
+      const values = Object.fromEntries(new FormData(form)) as Record<string, string>;
+      let visible = 0;
+      for (const item of items) {
+        const tags = (item.dataset.tags ?? "").split("|");
+        const matches =
+          (!values.category || item.dataset.category === values.category) &&
+          (!values.status || item.dataset.status === values.status) &&
+          (!values.tag || tags.includes(values.tag));
+        item.hidden = !matches;
+        if (matches) visible += 1;
+      }
+      result.textContent = `${visible} ${visible === 1 ? "item encontrado" : "itens encontrados"}.`;
+      empty.hidden = visible !== 0;
+    };
+
+    form.addEventListener("change", applyFilters);
+    form.addEventListener("reset", () => queueMicrotask(applyFilters));
+    applyFilters();
+  });
+</script>
