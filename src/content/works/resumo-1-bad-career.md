@@ -21,6 +21,8 @@ Produzir uma síntese crítica da palestra *How to Have a Bad Career in Research
 
 ## Fonte
 
+[![How to have a bad career | David Patterson](https://img.youtube.com/vi/Rn1w4MRHIhc/0.jpg)](https://www.youtube.com/watch?v=Rn1w4MRHIhc)
+
 David A. Patterson. *How to Have a Bad Career in Research/Academia*. Palestra, novembro de 2001. Slides públicos: [University of California, Berkeley](https://people.eecs.berkeley.edu/~pattrsn/talks/BadCareer.pdf).
 
 A referência pública identifica autor, título e data; o registro abaixo não reproduz os slides nem uma transcrição.
