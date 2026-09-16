@@ -3,14 +3,22 @@ import Header from "../components/layout/Header.astro";
 import Footer from "../components/layout/Footer.astro";
 import "../styles/global.css";
 import "../styles/print.css";
+import { serializeJsonLd, type JsonLd } from "../utils/seo";
 
 interface Props {
   title: string;
   description: string;
+  openGraphType?: "website" | "article";
+  jsonLd?: JsonLd;
 }
 
-const { title, description } = Astro.props;
+const { title, description, openGraphType = "website", jsonLd } = Astro.props;
 const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site) : Astro.url;
+const base = import.meta.env.BASE_URL;
+const basePath = base.endsWith("/") ? base : `${base}/`;
+const assetUrl = (path: string) => new URL(`${basePath}${path}`, Astro.site ?? Astro.url.origin);
+const openGraphImage = assetUrl("og-default.png");
+const serializedJsonLd = jsonLd ? serializeJsonLd(jsonLd) : null;
 ---
 
 <!doctype html>
@@ -20,12 +28,24 @@ const canonicalUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site) : Astr
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0f5b55" />
+    <link rel="icon" href={`${basePath}favicon.svg`} type="image/svg+xml" />
     <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" type="application/rss+xml" title="CCM-002 — conteúdo recente" href={`${basePath}rss.xml`} />
     <meta property="og:locale" content="pt_BR" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={openGraphType} />
+    <meta property="og:site_name" content="CCM-002 — Metodologia de Pesquisa" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={openGraphImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="CCM-002 — caderno público de Metodologia de Pesquisa" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={openGraphImage} />
+    {serializedJsonLd && <script is:inline type="application/ld+json" set:html={serializedJsonLd} />}
     <title>{title}</title>
   </head>
   <body>

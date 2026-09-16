@@ -13,14 +13,19 @@
     "preview": "astro preview",
     "check": "astro check",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "verify:build": "node scripts/scan-public-build.mjs",
+    "generate:og": "node scripts/generate-og-image.mjs"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^22.20.2",
     "astro": "^7.3.2",
+    "entities": "^8.1.0",
     "typescript": "^6.0.3",
     "vitest": "^5.0.0",
     "yaml": "^2.9.1"

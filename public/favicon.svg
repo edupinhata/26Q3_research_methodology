@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title description">
+  <title id="title">Monograma M de Metodologia</title>
+  <desc id="description">Letra M clara sobre um selo verde-petróleo com detalhe ocre.</desc>
+  <rect width="64" height="64" rx="14" fill="#0f5b55"/>
+  <path d="M10 49V15h9l13 20 13-20h9v34H44V31L32 49 20 31v18z" fill="#fffdf8"/>
+  <rect x="10" y="53" width="44" height="4" rx="2" fill="#d49a28"/>
+</svg>

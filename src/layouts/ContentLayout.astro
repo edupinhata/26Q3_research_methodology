@@ -23,6 +23,7 @@ interface Props {
   description: string;
   publishedAt: Date;
   category: string;
+  structuredDataType: "Article" | "WebPage";
   status?: string;
   tags: string[];
   headings: Heading[];
@@ -36,6 +37,7 @@ const {
   description,
   publishedAt,
   category,
+  structuredDataType,
   status,
   tags,
   headings,
@@ -44,9 +46,48 @@ const {
   newer = null,
 } = Astro.props;
 const tableOfContents = headings.filter(({ depth }) => depth === 2 || depth === 3);
+const pageUrl = Astro.site ? new URL(Astro.url.pathname, Astro.site) : Astro.url;
+const base = import.meta.env.BASE_URL;
+const basePath = base.endsWith("/") ? base : `${base}/`;
+const imageUrl = new URL(`${basePath}og-default.png`, Astro.site ?? Astro.url.origin);
+const latestRevision = revisions.toSorted((left, right) => right.date.getTime() - left.date.getTime())[0];
+const modifiedAt = latestRevision && latestRevision.date > publishedAt ? latestRevision.date : publishedAt;
+const siteReference = {
+  "@type": "WebSite",
+  name: "CCM-002 — Metodologia de Pesquisa",
+  url: new URL(basePath, Astro.site ?? Astro.url.origin).href,
+};
+const commonJsonLd = {
+  "@context": "https://schema.org",
+  description,
+  datePublished: publishedAt.toISOString(),
+  dateModified: modifiedAt.toISOString(),
+  inLanguage: "pt-BR",
+  keywords: tags,
+  isPartOf: siteReference,
+};
+const structuredData = structuredDataType === "Article"
+  ? {
+      ...commonJsonLd,
+      "@type": "Article",
+      headline: title,
+      image: imageUrl.href,
+      mainEntityOfPage: pageUrl.href,
+    }
+  : {
+      ...commonJsonLd,
+      "@type": "WebPage",
+      name: title,
+      url: pageUrl.href,
+    };
 ---
 
-<BaseLayout title={`${title} — CCM-002`} description={description}>
+<BaseLayout
+  title={`${title} — CCM-002`}
+  description={description}
+  openGraphType={structuredDataType === "Article" ? "article" : "website"}
+  jsonLd={structuredData}
+>
   <article class="content-article">
     <header class="content-header">
       <p class="eyebrow">{category}{status ? ` · ${status}` : ""}</p>

@@ -571,6 +571,10 @@ main {
   border-block-end: var(--border-subtle);
 }
 
+.content-header h1 {
+  overflow-wrap: anywhere;
+}
+
 .content-meta,
 .content-week {
   color: var(--color-ink-soft);

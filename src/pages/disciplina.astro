@@ -21,11 +21,35 @@ interface CourseData {
 }
 
 const course = parse(courseYaml) as CourseData;
+const courseJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  name: course.name,
+  description: course.objectives[0],
+  courseCode: course.code,
+  inLanguage: "pt-BR",
+  provider: {
+    "@type": "EducationalOrganization",
+    name: course.institution,
+  },
+  hasCourseInstance: {
+    "@type": "CourseInstance",
+    courseMode: "onsite",
+    startDate: course.startsOn,
+    endDate: course.endsOn,
+    location: {
+      "@type": "Place",
+      name: `Sala ${course.meetings[0]?.room}, ${course.institution}`,
+    },
+    instructor: course.instructors.map((name) => ({ "@type": "Person", name })),
+  },
+};
 ---
 
 <BaseLayout
   title="Sobre a disciplina — CCM-002"
   description="Objetivos, tópicos, encontros e sistema de avaliação da CCM-002 — Metodologia de Pesquisa em Ciência da Computação."
+  jsonLd={courseJsonLd}
 >
   <header class="page-intro">
     <p class="eyebrow">{course.institution} · {course.term}</p>
