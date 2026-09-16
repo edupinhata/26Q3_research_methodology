@@ -1,0 +1,99 @@
+---
+import { parse } from "yaml";
+import courseYaml from "../data/course.yml?raw";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { formatTimelineDate } from "../utils/timeline";
+
+interface CourseData {
+  code: string;
+  name: string;
+  institution: string;
+  term: string;
+  startsOn: string;
+  endsOn: string;
+  lastCheckedAt: string;
+  officialSource: { label: string; restricted: boolean; note: string };
+  instructors: string[];
+  meetings: Array<{ weekday: string; startsAt: string; endsAt: string; room: string }>;
+  assessment: Array<{ id: string; label: string; weight: number }>;
+  objectives: string[];
+  topics: string[];
+}
+
+const course = parse(courseYaml) as CourseData;
+---
+
+<BaseLayout
+  title="Sobre a disciplina — CCM-002"
+  description="Objetivos, tópicos, encontros e sistema de avaliação da CCM-002 — Metodologia de Pesquisa em Ciência da Computação."
+>
+  <header class="page-intro">
+    <p class="eyebrow">{course.institution} · {course.term}</p>
+    <h1>Sobre a disciplina</h1>
+    <p class="lead">{course.code} — {course.name}</p>
+    <p class="context-note">
+      Este é um caderno pessoal de estudante, não uma página oficial da {course.institution}.
+    </p>
+  </header>
+
+  <div class="course-details">
+    <section class="detail-card" aria-labelledby="objectives-title">
+      <p class="section-kicker">Propósito</p>
+      <h2 id="objectives-title">Objetivos</h2>
+      <ul class="plain-list">
+        {course.objectives.map((objective) => <li>{objective}</li>)}
+      </ul>
+    </section>
+
+    <section class="detail-card" aria-labelledby="topics-title">
+      <p class="section-kicker">Conteúdo</p>
+      <h2 id="topics-title">Tópicos do percurso</h2>
+      <ul class="topic-list">
+        {course.topics.map((topic) => <li>{topic}</li>)}
+      </ul>
+    </section>
+
+    <section class="detail-card" aria-labelledby="meetings-title">
+      <p class="section-kicker">Rotina</p>
+      <h2 id="meetings-title">Encontros presenciais</h2>
+      <dl class="meeting-list">
+        {course.meetings.map((meeting) => (
+          <div>
+            <dt>{meeting.weekday}</dt>
+            <dd>
+              {meeting.startsAt}–{meeting.endsAt}, sala <span class="nowrap">{meeting.room}</span>
+            </dd>
+          </div>
+        ))}
+      </dl>
+      <p>
+        Docentes: <strong>{course.instructors.join(" e ")}</strong>.
+      </p>
+    </section>
+
+    <section class="detail-card assessment-card" aria-labelledby="assessment-title">
+      <p class="section-kicker">Avaliação</p>
+      <h2 id="assessment-title">Sistema de avaliação</h2>
+      <ol class="assessment-list">
+        {course.assessment.map((item) => (
+          <li>
+            <strong>{item.id}</strong>
+            <span>{item.label}</span>
+            <span class="assessment-weight">peso {item.weight}</span>
+          </li>
+        ))}
+      </ol>
+    </section>
+  </div>
+
+  <aside class="source-notice" aria-label="Procedência do calendário">
+    <h2>Fonte e atualização</h2>
+    <p>{course.officialSource.note}</p>
+    <p>
+      <strong>
+        Última conferência no {course.officialSource.label}: {formatTimelineDate(course.lastCheckedAt)}.
+      </strong>
+    </p>
+    {course.officialSource.restricted && <p class="restricted-label">Acesso restrito</p>}
+  </aside>
+</BaseLayout>

@@ -531,7 +531,7 @@ Pontos identificados durante revisões de código. Eles não impedem a conclusã
 
 ### Calendário
 
-- [ ] Antes da Tarefa 6, decidir se `schedule.yml` conterá somente marcos ou todas as aulas, feriados e assuntos.
+- [x] `schedule.yml` registra todas as ocorrências conhecidas: aulas regulares, feriados, prazos, apresentações e reposições; temas específicos não confirmados não são inventados.
 
 ### Conteúdo
 

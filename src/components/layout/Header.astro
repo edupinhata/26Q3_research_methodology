@@ -1,5 +1,6 @@
 ---
 const base = import.meta.env.BASE_URL;
+const basePath = base.endsWith("/") ? base.slice(0, -1) : base;
 const currentPath = Astro.url.pathname;
 const repositoryUrl = "https://github.com/edupinhata/26Q3_research_methodology";
 ---
@@ -15,6 +16,16 @@ const repositoryUrl = "https://github.com/edupinhata/26Q3_research_methodology";
       <li>
         <a href={base} aria-current={currentPath === base || currentPath === `${base}/` ? "page" : undefined}>
           Início
+        </a>
+      </li>
+      <li>
+        <a href={`${basePath}/disciplina/`} aria-current={currentPath === `${basePath}/disciplina/` ? "page" : undefined}>
+          Disciplina
+        </a>
+      </li>
+      <li>
+        <a href={`${basePath}/timeline/`} aria-current={currentPath === `${basePath}/timeline/` ? "page" : undefined}>
+          Timeline
         </a>
       </li>
       <li>

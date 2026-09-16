@@ -1,0 +1,11 @@
+---
+import { getEventTypeLabel, type TimelineEventType } from "../utils/timeline";
+
+interface Props {
+  type: TimelineEventType;
+}
+
+const { type } = Astro.props;
+---
+
+<span class:list={["status-badge", `status-badge--${type}`]}>{getEventTypeLabel(type)}</span>
