@@ -1,5 +1,7 @@
 # CCM-002 — Metodologia de Pesquisa em Ciência da Computação
 
+[![Deploy do GitHub Pages](https://github.com/edupinhata/26Q3_research_methodology/actions/workflows/deploy-pages.yml/badge.svg?branch=main)](https://github.com/edupinhata/26Q3_research_methodology/actions/workflows/deploy-pages.yml)
+
 Site público e portfólio acadêmico da disciplina **CCM-002 — Metodologia de Pesquisa em Ciência da Computação**, cursada na UFABC durante o quadrimestre 2026.3.
 
 O projeto funciona como um caderno de pesquisa contemporâneo: reúne informações da disciplina, calendário, prazos, trabalhos, anotações e aprendizados de forma organizada, acessível e adequada para consulta pública.
@@ -14,6 +16,10 @@ A publicação pelo GitHub Pages está configurada para:
 
 O deploy ocorre automaticamente após alterações na branch `main`, desde que os testes, a verificação de tipos, o build e os testes de acessibilidade sejam aprovados.
 
+[![Captura da página inicial do portfólio CCM-002](public/images/site-preview.png)](https://edupinhata.github.io/26Q3_research_methodology/)
+
+A captura é gerada a partir do build de produção e funciona como atalho para o site publicado.
+
 ## Funcionalidades atuais
 
 - página inicial com apresentação da disciplina, próxima entrega e progresso;
@@ -21,13 +27,15 @@ O deploy ocorre automaticamente após alterações na branch `main`, desde que o
 - timeline cronológica com aulas, feriados, prazos, apresentações e reposições;
 - identificação da última conferência manual dos dados no Moodle;
 - conteúdo estruturado em YAML;
+- conteúdo autoral inicial: boas-vindas, registro da primeira aula, diários dos trabalhos e biblioteca comentada;
 - collections tipadas para trabalhos, anotações, biblioteca e projetos;
+- filtros e páginas individuais com sumário, metadados, histórico de revisões e declaração de uso de IA;
 - layout responsivo a partir de 320 px;
 - navegação por teclado, foco visível e landmarks semânticos;
 - datas formatadas em português sem deslocamento indevido de dia por timezone;
 - publicação estática automatizada no GitHub Pages.
 
-As collections editoriais ainda estão preparadas, mas podem permanecer vazias até que os primeiros conteúdos autorais sejam revisados e publicados.
+Os conteúdos publicados formam o primeiro recorte público do caderno. Itens incompletos ou ainda não revisados devem permanecer com `draft: true` e não são gerados no build de produção.
 
 ## Tecnologias
 
@@ -168,6 +176,12 @@ O workflow `.github/workflows/deploy-pages.yml` é executado em pushes para `mai
 5. publica `dist/` no GitHub Pages somente após todos os gates passarem.
 
 Nenhuma credencial de deploy precisa ser adicionada ao repositório: o GitHub Pages utiliza permissões temporárias do próprio workflow.
+
+## Licença
+
+O código-fonte e a documentação técnica estão disponíveis sob a **MIT License**. Textos, anotações, resumos, imagens e demais artefatos acadêmicos autorais permanecem com **todos os direitos reservados**, salvo indicação explícita em um arquivo específico.
+
+Obras de terceiros aparecem somente como referências, metadados ou links e continuam sujeitas aos direitos de seus respectivos autores. Consulte [`LICENSE`](LICENSE) para os termos completos.
 
 ## Repositório
 

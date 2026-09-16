@@ -21,7 +21,9 @@ test("presents the course, deadline, progress, and published-content regions", a
     "max",
     "10",
   );
-  await expect(page.getByRole("region", { name: "Conteúdo recente" })).toContainText(
-    "Nenhum conteúdo publicado ainda",
-  );
+  const recentContent = page.getByRole("region", { name: "Conteúdo recente" });
+  await expect(recentContent).toContainText("Aula de 14/09 — início do percurso");
+  await expect(
+    recentContent.getByRole("link", { name: "Boas-vindas ao caderno de pesquisa", exact: true }),
+  ).toHaveAttribute("href", "/26Q3_research_methodology/anotacoes/boas-vindas/");
 });

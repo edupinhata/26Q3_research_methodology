@@ -8,25 +8,41 @@ const sections = [
     link: "Trabalhos",
     path: "trabalhos",
     heading: "Trabalhos acadêmicos",
-    empty: "Nenhum trabalho publicado ainda.",
+    expectedItem: "Resumo 1 — How to Have a Bad Career in Research/Academia",
   },
   {
     link: "Anotações",
     path: "anotacoes",
     heading: "Anotações de pesquisa",
-    empty: "Nenhuma anotação publicada ainda.",
+    expectedItem: "Boas-vindas ao caderno de pesquisa",
   },
   {
     link: "Biblioteca",
     path: "biblioteca",
     heading: "Biblioteca comentada",
-    empty: "Nenhuma leitura publicada ainda.",
+    expectedItem: "How to read a paper",
   },
   {
     link: "Código",
     path: "codigo",
     heading: "Código e experimentos",
     empty: "Nenhum projeto publicado ainda.",
+  },
+];
+
+const representativeDetails = [
+  {
+    path: "trabalhos/resumo-1-bad-career",
+    heading: "Resumo 1 — How to Have a Bad Career in Research/Academia",
+    notice: "Declaração de uso de IA",
+  },
+  {
+    path: "anotacoes/aula-2026-09-14",
+    heading: "Aula de 14/09 — início do percurso",
+  },
+  {
+    path: "biblioteca/how-to-read-a-paper",
+    heading: "How to read a paper",
   },
 ];
 
@@ -40,12 +56,31 @@ test("header exposes every academic collection index with base-aware links", asy
 });
 
 for (const section of sections) {
-  test(`${section.path} has an accessible empty editorial index`, async ({ page }) => {
+  test(`${section.path} has an accessible editorial index`, async ({ page }) => {
     await page.goto(`${base}/${section.path}/`);
 
     await expect(page.getByRole("heading", { level: 1, name: section.heading })).toBeVisible();
-    await expect(page.getByText(section.empty, { exact: true })).toBeVisible();
+    if (section.expectedItem) {
+      await expect(page.getByRole("link", { name: section.expectedItem, exact: true })).toBeVisible();
+    } else {
+      await expect(page.getByText(section.empty ?? "", { exact: true })).toBeVisible();
+    }
     await expect(page.getByRole("navigation", { name: "Navegação principal" })).toBeVisible();
+
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations).toEqual([]);
+  });
+}
+
+for (const detail of representativeDetails) {
+  test(`${detail.path} renders published content accessibly`, async ({ page }) => {
+    await page.goto(`${base}/${detail.path}/`);
+
+    await expect(page.getByRole("heading", { level: 1, name: detail.heading })).toBeVisible();
+    await expect(page.getByRole("navigation", { name: "Sumário deste conteúdo" })).toBeVisible();
+    if (detail.notice) {
+      await expect(page.getByRole("heading", { name: detail.notice })).toBeVisible();
+    }
 
     const results = await new AxeBuilder({ page }).analyze();
     expect(results.violations).toEqual([]);
