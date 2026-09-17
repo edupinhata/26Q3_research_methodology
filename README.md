@@ -8,6 +8,24 @@ O projeto funciona como um caderno de pesquisa contemporâneo: reúne informaç�
 
 > Este é um site pessoal de estudante, não uma página oficial da UFABC. O Moodle permanece como fonte oficial dos prazos e materiais restritos.
 
+## Sumário
+
+- [Site publicado](#site-publicado)
+- [Funcionalidades atuais](#funcionalidades-atuais)
+- [Tecnologias](#tecnologias)
+- [Pré-requisitos](#pré-requisitos)
+- [Instalação](#instalação)
+- [Executar em desenvolvimento](#executar-em-desenvolvimento)
+- [Testes e verificações](#testes-e-verificações)
+- [Testar o build de produção](#testar-o-build-de-produção)
+- [Estrutura principal](#estrutura-principal)
+- [Atualização de conteúdo](#atualização-de-conteúdo)
+  - [Uso do fluxo de `works`](#uso-do-fluxo-de-works)
+- [Segurança, privacidade e integridade acadêmica](#segurança-privacidade-e-integridade-acadêmica)
+- [Publicação](#publicação)
+- [Licença](#licença)
+- [Repositório](#repositório)
+
 ## Site publicado
 
 A publicação pelo GitHub Pages está configurada para:
@@ -101,6 +119,7 @@ Execute os gates de qualidade a partir da raiz do projeto:
 ```bash
 npm test
 npm run check
+npm run work:pdf -- --all
 npm run build
 npm run verify:build
 npm run test:e2e
@@ -117,10 +136,11 @@ Os comandos verificam, respectivamente:
 
 1. regras de domínio, datas, progresso e dados estruturados;
 2. tipos TypeScript e componentes Astro;
-3. geração das páginas estáticas em `dist/`;
-4. exclusão de drafts, formatos públicos não classificados e padrões conhecidos de credenciais, inclusive em variantes percentuais, HTML/JavaScript, Base64, UTF-16 e artefatos binários;
-5. navegação real, base path, viewport de 320 px e acessibilidade automatizada;
-6. vulnerabilidades conhecidas nas dependências npm.
+3. limpeza e regeneração dos PDFs públicos exclusivamente a partir de entregas canônicas concluídas;
+4. geração das páginas estáticas em `dist/`;
+5. exclusão de drafts, PDFs não autorizados, formatos públicos não classificados e padrões conhecidos de credenciais, inclusive no texto extraído de PDFs;
+6. navegação real, base path, viewport de 320 px e acessibilidade automatizada;
+7. vulnerabilidades conhecidas nas dependências npm.
 
 O Playwright inicia e encerra automaticamente um servidor de preview durante os testes E2E.
 
@@ -129,6 +149,7 @@ O Playwright inicia e encerra automaticamente um servidor de preview durante os 
 Gere e sirva localmente o mesmo tipo de artefato estático utilizado no deploy:
 
 ```bash
+npm run work:pdf -- --all
 npm run build
 npm run preview
 ```
@@ -162,8 +183,85 @@ tests/
 - aulas, feriados e marcos ficam em `src/data/schedule.yml`;
 - prazos e estados das entregas ficam em `src/data/deliverables.yml`;
 - conteúdo autoral fica sob `src/content/`;
+- fontes integrais de trabalhos acadêmicos ficam em `documents/<id>/work.md`;
+- prévias privadas ficam em `.work-previews/`, e PDFs finalizados são gerados em `public/documents/works/`; nenhum deles é versionado;
 - datas devem usar o formato ISO;
 - conteúdos incompletos devem permanecer com `draft: true`.
+
+### Uso do fluxo de `works`
+
+O fluxo mantém responsabilidades separadas:
+
+- `src/data/deliverables.yml`: metadados e estado canônicos da entrega;
+- `documents/<id>/work.md`: única fonte do texto acadêmico integral;
+- `src/content/works/<id>.md`: apresentação pública curta e metadados da página;
+- `.work-previews/<id>.pdf`: prévia A4 privada e não versionada;
+- `public/documents/works/<id>.pdf`: artefato público gerado somente para trabalhos finalizados.
+
+Execute todos os comandos abaixo na raiz do repositório.
+
+| Comando npm | Finalidade | Resultado principal |
+| --- | --- | --- |
+| `npm run work:new -- <id>` | Criar transacionalmente as fontes editáveis de uma entrega já cadastrada | `documents/<id>/work.md` e `src/content/works/<id>.md` |
+| `npm run work:pdf -- <id>` | Gerar uma prévia privada durante a escrita | `.work-previews/<id>.pdf` |
+| `npm run work:finalize -- <id>` | Validar, finalizar os metadados e gerar o PDF público | `public/documents/works/<id>.pdf` |
+| `npm run work:pdf -- --all` | Limpar e regenerar os PDFs públicos canonicamente autorizados | PDFs dos trabalhos com estados concordantes e concluídos |
+
+#### 1. Registrar a entrega canônica
+
+Adicione a entrega a `src/data/deliverables.yml`. O `id` deve conter apenas letras minúsculas, números e hífens; `dueAt` deve ser um timestamp ISO completo, com segundos e timezone explícito.
+
+#### 2. Criar as fontes editáveis
+
+```bash
+npm run work:new -- <id-da-entrega>
+```
+
+Para tornar a data editorial reproduzível, use `--date AAAA-MM-DD`:
+
+```bash
+npm run work:new -- <id-da-entrega> --date 2026-09-16
+```
+
+Também é possível informar o identificador como `--id <id-da-entrega>`.
+
+#### 3. Escrever e revisar
+
+Escreva o trabalho integral em `documents/<id>/work.md`. Em `src/content/works/<id>.md`, mantenha somente uma apresentação concisa; diários, planos e bastidores pertencem a `src/content/notes/`.
+
+Durante a escrita, gere quantas prévias privadas forem necessárias:
+
+```bash
+npm run work:pdf -- <id-da-entrega>
+```
+
+Esse comando não publica o trabalho nem altera seu estado.
+
+#### 4. Finalizar
+
+Depois de revisar texto, referências, declaração de uso de IA, apresentação e metadados públicos:
+
+```bash
+npm run work:finalize -- <id-da-entrega>
+```
+
+Uma data editorial explícita também pode ser informada:
+
+```bash
+npm run work:finalize -- <id-da-entrega> --date 2026-10-10
+```
+
+A finalização falha de forma segura diante de placeholders, seções insuficientes, caminhos privados, possíveis credenciais, entrega canônica inexistente ou PDF inválido. PDF e metadados são preparados em staging antes de alterar os destinos. Se uma substituição falhar, os arquivos já instalados são removidos e os originais são restaurados; uma falha posterior ao limpar backups é reportada, mas não desfaz substituições concluídas.
+
+#### 5. Regenerar e verificar antes de publicar
+
+```bash
+npm run work:pdf -- --all
+npm run build
+npm run verify:build
+```
+
+`work:pdf -- --all` remove PDFs antigos e regenera somente os artefatos cujos estados em `deliverables.yml` e na página pública estejam concluídos e concordantes. O procedimento completo, as garantias e os casos de falha estão em [`docs/ACADEMIC_WORKFLOW.md`](docs/ACADEMIC_WORKFLOW.md).
 
 O calendário é mantido manualmente. Ao atualizar um prazo, confira o Moodle e atualize também `lastCheckedAt` em `src/data/course.yml`.
 
@@ -182,10 +280,11 @@ O workflow `.github/workflows/deploy-pages.yml` é executado em pushes para `mai
 
 1. instala dependências com `npm ci`;
 2. executa Astro Check e os testes unitários;
-3. gera o build estático;
-4. bloqueia drafts publicados, formatos desconhecidos e padrões conhecidos de credenciais no artefato;
-5. executa os testes E2E e de acessibilidade;
-6. publica `dist/` no GitHub Pages somente após todos os gates passarem.
+3. limpa e regenera os PDFs públicos com `npm run work:pdf -- --all`;
+4. gera o build estático;
+5. bloqueia drafts publicados, PDFs não autorizados, formatos desconhecidos e padrões conhecidos de credenciais no artefato;
+6. executa os testes E2E e de acessibilidade;
+7. publica `dist/` no GitHub Pages somente após todos os gates passarem.
 
 O scanner é uma defesa automatizada em profundidade, não substitui a revisão humana de documentos, imagens e metadados antes da publicação.
 

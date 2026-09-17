@@ -7,14 +7,16 @@ import { academicSchemas } from "../../src/content/schemas";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 
-const expectedContent = {
-  notes: ["boas-vindas.md", "aula-2026-09-14.md"],
-  works: [
-    "resumo-1-bad-career.md",
-    "resumo-2-how-to-read-a-paper.md",
+const expectedPublishedContent = {
+  notes: [
+    "boas-vindas.md",
+    "aula-2026-09-14.md",
     "survey-review.md",
     "diario-pre-projeto.md",
+    "processo-resumo-1-bad-career.md",
+    "processo-resumo-2-how-to-read-a-paper.md",
   ],
+  works: ["resumo-1-bad-career.md", "resumo-2-how-to-read-a-paper.md"],
   library: [
     "how-to-read-a-paper.md",
     "ai-tools-science-focus.md",
@@ -23,6 +25,17 @@ const expectedContent = {
     "autonomous-ai-human-values.md",
   ],
 } as const;
+
+const expectedDraftContent = {
+  works: ["proposta-survey-review.md", "proposta-pre-projeto.md"],
+} as const;
+
+const migratedDocuments = [
+  "resumo-1-bad-career",
+  "resumo-2-how-to-read-a-paper",
+  "proposta-survey-review",
+  "proposta-pre-projeto",
+] as const;
 
 function readFrontmatter(path: string): unknown {
   const source = readFileSync(path, "utf8");
@@ -33,7 +46,7 @@ function readFrontmatter(path: string): unknown {
 
 describe("conteúdo autoral inicial", () => {
   it("publica o conjunto editorial previsto com frontmatter válido", () => {
-    for (const [collection, files] of Object.entries(expectedContent)) {
+    for (const [collection, files] of Object.entries(expectedPublishedContent)) {
       for (const file of files) {
         const path = resolve(projectRoot, "src", "content", collection, file);
         expect(existsSync(path), path).toBe(true);
@@ -45,12 +58,27 @@ describe("conteúdo autoral inicial", () => {
         expect(frontmatter.draft, `${file} deve estar publicado`).toBe(false);
       }
     }
+
+    for (const [collection, files] of Object.entries(expectedDraftContent)) {
+      for (const file of files) {
+        const path = resolve(projectRoot, "src", "content", collection, file);
+        expect(existsSync(path), path).toBe(true);
+        const frontmatter = readFrontmatter(path) as { draft?: boolean };
+        const result = academicSchemas[collection as keyof typeof academicSchemas].safeParse(frontmatter);
+        expect(result.success, result.error?.message).toBe(true);
+        expect(frontmatter.draft, `${file} deve permanecer privado`).toBe(true);
+      }
+    }
   });
 
   it("mantém o conteúdo público livre de marcadores de sessão e cópia de enunciado restrito", () => {
     const forbidden = /(?:moodlesession|sesskey|jsessionid|copiado do moodle|enunciado integral)/i;
+    const allContent = {
+      ...expectedPublishedContent,
+      works: [...expectedPublishedContent.works, ...expectedDraftContent.works],
+    };
 
-    for (const [collection, files] of Object.entries(expectedContent)) {
+    for (const [collection, files] of Object.entries(allContent)) {
       for (const file of files) {
         const path = resolve(projectRoot, "src", "content", collection, file);
         expect(existsSync(path), path).toBe(true);
@@ -75,6 +103,60 @@ describe("conteúdo autoral inicial", () => {
 
     expect(deliverables.find(({ id }) => id === "resumo-1-bad-career")?.status).toBe("in-progress");
   });
+
+  it("separa registros de processo das fontes integrais sem fabricar trabalhos concluídos", () => {
+    expect(existsSync(resolve(projectRoot, "src/content/works/survey-review.md"))).toBe(false);
+    expect(existsSync(resolve(projectRoot, "src/content/works/diario-pre-projeto.md"))).toBe(false);
+
+    for (const id of migratedDocuments) {
+      const source = readFileSync(resolve(projectRoot, "documents", id, "work.md"), "utf8");
+      expect(source).toContain("## Referências");
+      expect(source).toContain("## Declaração de uso de inteligência artificial");
+      expect(source).toMatch(/\[(?:Escreva|Registre|Informe|Descreva)/i);
+    }
+
+    const resumo1Process = readFileSync(resolve(projectRoot, "src/content/notes/processo-resumo-1-bad-career.md"), "utf8");
+    expect(resumo1Process).toContain("## Método de trabalho");
+    expect(resumo1Process).toContain("## Questões de leitura");
+    const resumo2Process = readFileSync(resolve(projectRoot, "src/content/notes/processo-resumo-2-how-to-read-a-paper.md"), "utf8");
+    expect(resumo2Process).toContain("## Plano de leitura");
+    expect(resumo2Process).toContain("## Evidência esperada");
+
+    const body = (source: string) => {
+      const normalized = source.replaceAll(String.fromCharCode(13), "");
+      return normalized.slice(normalized.indexOf("\n---\n", 4) + 5).trim();
+    };
+    const surveyProcess = readFileSync(resolve(projectRoot, "src/content/notes/survey-review.md"), "utf8");
+    expect(body(surveyProcess)).toBe(`## Finalidade
+
+Esta página acompanhará o survey/review desde a proposta até a apresentação. O objetivo é manter um rastro claro das decisões: recorte, pergunta, termos de busca, critérios de seleção, organização das evidências e limites da revisão.
+
+## Decisões ainda abertas
+
+- tema e pergunta central;
+- bases e fontes de busca;
+- período e tipos de publicação;
+- critérios de inclusão e exclusão;
+- forma de extração e síntese das evidências.
+
+## Próximo marco
+
+A primeira versão deverá justificar um recorte viável e demonstrar que a pergunta pode ser respondida por uma revisão de literatura dentro do tempo da disciplina.`);
+    const preProjectProcess = readFileSync(resolve(projectRoot, "src/content/notes/diario-pre-projeto.md"), "utf8");
+    expect(body(preProjectProcess)).toBe(`## Por que manter um diário
+
+O pré-projeto não deve surgir apenas na data de entrega. Este diário registrará a evolução entre tema, problema, pergunta de pesquisa, evidências necessárias e método possível. Alterações serão preservadas no histórico de revisões em vez de apresentadas como se a ideia final tivesse surgido pronta.
+
+## Critérios para uma pergunta promissora
+
+A pergunta deverá ser específica o bastante para orientar coleta e análise, relevante para um público identificável, compatível com o tempo disponível e formulada de modo que resultados contrários à expectativa também sejam informativos.
+
+## Estado atual
+
+O tema ainda não foi definido. As leituras e discussões iniciais servirão para formar um conjunto de problemas candidatos antes da escolha de um recorte.`);
+
+    expect(existsSync(resolve(projectRoot, "public/documents/works"))).toBe(false);
+  });
 });
 
 describe("README como porta de entrada", () => {
@@ -88,6 +170,9 @@ describe("README como porta de entrada", () => {
     expect(readme).toContain("public/images/site-preview.png");
     expect(readme).toContain("npm ci");
     expect(readme).toContain("npm run test:e2e");
+    expect(readme).toContain("npm run work:new");
+    expect(readme).toContain("npm run work:pdf -- --all");
+    expect(readme).toContain("docs/ACADEMIC_WORKFLOW.md");
     expect(readme).toMatch(/materiais restritos/i);
     expect(readme).toMatch(/uso de IA/i);
     expect(readme).toMatch(/licen[çc]a/i);

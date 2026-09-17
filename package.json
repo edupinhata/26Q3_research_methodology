@@ -15,7 +15,10 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "verify:build": "node scripts/scan-public-build.mjs",
-    "generate:og": "node scripts/generate-og-image.mjs"
+    "generate:og": "node scripts/generate-og-image.mjs",
+    "work:new": "node scripts/academic-workflow-cli.mjs new",
+    "work:pdf": "node scripts/academic-workflow-cli.mjs pdf",
+    "work:finalize": "node scripts/academic-workflow-cli.mjs finalize"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
@@ -23,9 +26,12 @@
     "@astrojs/sitemap": "^3.7.4",
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
+    "@types/markdown-it": "^14.2.0",
     "@types/node": "^22.20.2",
     "astro": "^7.3.2",
     "entities": "^8.1.0",
+    "markdown-it": "^15.0.2",
+    "pdfjs-dist": "^6.3.289",
     "typescript": "^6.0.3",
     "vitest": "^5.0.0",
     "yaml": "^2.9.1"
