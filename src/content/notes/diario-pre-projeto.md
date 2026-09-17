@@ -1,18 +1,17 @@
 ---
 title: "Pré-projeto — diário progressivo"
-description: "Registro incremental das perguntas, hipóteses e decisões que conduzirão à proposta final de pesquisa."
+description: "Registro incremental das perguntas, hipóteses e decisões que conduzirão à proposta de pesquisa."
 publishedAt: "2026-09-16"
 tags: ["pré-projeto", "pergunta-de-pesquisa", "planejamento"]
 draft: false
 revisions:
   - date: "2026-09-16"
     description: "Criação do diário progressivo."
-type: "pre-project"
-status: "planned"
-dueAt: "2026-10-25T23:59:00-03:00"
+  - date: "2026-09-16"
+    description: "Diário separado do documento acadêmico da proposta."
+kind: "thematic"
 courseWeek: 6
-featured: false
-aiUsage: "IA generativa foi usada para estruturar e revisar linguisticamente este diário público. A formulação do problema, as escolhas metodológicas e sua validação permanecem sob responsabilidade do autor."
+status: "reviewed"
 ---
 
 ## Por que manter um diário

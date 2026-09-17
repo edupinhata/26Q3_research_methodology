@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
+import { chromium } from "@playwright/test";
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const scannerPath = resolve(projectRoot, "scripts/scan-public-build.mjs");
@@ -105,10 +106,104 @@ describe("public build scanner", () => {
     const { dist, content } = fixture();
     write(
       resolve(dist, "image.png"),
-      Buffer.from("PNG-BYTES api_key='sk-proj-abcdefghijklmnopqrstuvwxyz'"),
+      Buffer.from(`PNG-BYTES api_key='sk-proj-${"a".repeat(26)}'`),
     );
 
     expect(scan(dist, content)).toThrow();
+  });
+
+  it("extracts PDF text and rejects a compressed credential", async () => {
+    const { dist, content } = fixture();
+    const fakeGitHubToken = `ghp_${"a".repeat(20)}`;
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.setContent(`<p>Credencial sintética: ${fakeGitHubToken}</p>`);
+      await page.pdf({ path: resolve(dist, "work.pdf"), format: "A4" });
+    } finally {
+      await browser.close();
+    }
+
+    expect(scan(dist, content)).toThrow(/GitHub token/i);
+  });
+
+  it("rejects a completed work PDF that bypasses canonical deliverable state", async () => {
+    const { dist, content } = fixture();
+    write(
+      resolve(content, "works/direct-publication.md"),
+      `---
+title: Publicação direta
+draft: false
+status: completed
+artifact: /documents/works/direct-publication.pdf
+---
+Apresentação pública.
+`,
+    );
+    write(resolve(dist, "trabalhos/direct-publication/index.html"), "<h1>Publicação direta</h1>");
+    const pdfPath = resolve(dist, "documents/works/direct-publication.pdf");
+    mkdirSync(dirname(pdfPath), { recursive: true });
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.setContent("<p>PDF limpo, mas não autorizado pelo manifesto canônico.</p>");
+      await page.pdf({ path: pdfPath, format: "A4" });
+    } finally {
+      await browser.close();
+    }
+
+    expect(scan(dist, content)).toThrow(/canônic|deliverables/i);
+  });
+
+  it("accepts a finalized PDF only when source, route and canonical state agree", async () => {
+    const { dist, content } = fixture();
+    write(
+      resolve(content, "works/canonical-work.md"),
+      `---
+title: Trabalho canônico
+draft: false
+status: completed
+artifact: /documents/works/canonical-work.pdf
+---
+Apresentação pública.
+`,
+    );
+    write(
+      resolve(content, "../data/deliverables.yml"),
+      `- id: canonical-work
+  title: Trabalho canônico
+  status: completed
+`,
+    );
+    write(resolve(dist, "trabalhos/canonical-work/index.html"), "<h1>Trabalho canônico</h1>");
+    const pdfPath = resolve(dist, "documents/works/canonical-work.pdf");
+    mkdirSync(dirname(pdfPath), { recursive: true });
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.setContent("<p>PDF finalizado e autorizado.</p>");
+      await page.pdf({ path: pdfPath, format: "A4" });
+    } finally {
+      await browser.close();
+    }
+
+    expect(scan(dist, content)).not.toThrow();
+  });
+
+  it("rejects a PDF outside the controlled work-artifact directory", async () => {
+    const { dist, content } = fixture();
+    const pdfPath = resolve(dist, "uploads/arbitrary.pdf");
+    mkdirSync(dirname(pdfPath), { recursive: true });
+    const browser = await chromium.launch({ headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.setContent("<p>PDF arbitrário limpo.</p>");
+      await page.pdf({ path: pdfPath, format: "A4" });
+    } finally {
+      await browser.close();
+    }
+
+    expect(scan(dist, content)).toThrow(/diretório controlado|documents\/works/i);
   });
 
   it("rejects an unclassified public file format instead of skipping it", () => {

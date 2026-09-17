@@ -1,8 +1,8 @@
 import { readFile, readdir, stat } from "node:fs/promises";
 import { basename, extname, relative, resolve, sep } from "node:path";
 import process from "node:process";
-import { decodeHTML } from "entities";
 import { parse } from "yaml";
+import { extractPdfText, findSecretLabels, textVariants } from "./publication-safety.mjs";
 
 const TEXT_EXTENSIONS = new Set([
   ".css",
@@ -35,24 +35,6 @@ const BINARY_EXTENSIONS = new Set([
   ".woff2",
 ]);
 
-const SECRET_PATTERNS = [
-  ["private key", /-----BEGIN (?:[A-Z]+ )?PRIVATE KEY-----/i],
-  ["JWT", /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/],
-  ["Bearer token", /\bBearer\s+[A-Za-z0-9._~+\/-]{12,}=*/i],
-  ["GitHub token", /\b(?:gh[pousr]_[A-Za-z0-9]{20,}|github_pat_[A-Za-z0-9_]{20,})\b/],
-  ["OpenAI-style token", /\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b/],
-  ["AWS access key", /\bAKIA[0-9A-Z]{16}\b/],
-  ["Google API key", /\bAIza[0-9A-Za-z_-]{30,}\b/],
-  [
-    "credential assignment",
-    /\b(?:api[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password|passwd|secret)\s*[=:]\s*["']?[A-Za-z0-9._~+\/-]{8,}/i,
-  ],
-  [
-    "session parameter",
-    /\b(?:moodlesession|sesskey|jsessionid|phpsessid|access[_-]?token|auth[_-]?token|password)\s*[=:]\s*[^&\s"'<>]{4,}/i,
-  ],
-  ["credentials embedded in URL", /https?:\/\/[^\s/:]+:[^\s/@]+@/i],
-];
 
 const COLLECTION_ROUTES = new Map([
   ["library", "biblioteca"],
@@ -80,70 +62,6 @@ async function collectFiles(directory) {
   return files;
 }
 
-function percentDecode(text) {
-  return text.replace(/%([0-9a-f]{2})/gi, (_match, hex) =>
-    String.fromCharCode(Number.parseInt(hex, 16)),
-  );
-}
-
-function decodeHtmlEntities(text) {
-  return decodeHTML(text);
-}
-
-function decodeJavaScriptEscapes(text) {
-  return text
-    .replace(/\\u\{([0-9a-f]{1,6})\}/gi, (_match, hex) => {
-      const codePoint = Number.parseInt(hex, 16);
-      return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : _match;
-    })
-    .replace(/\\u([0-9a-f]{4})/gi, (_match, hex) =>
-      String.fromCharCode(Number.parseInt(hex, 16)),
-    )
-    .replace(/\\x([0-9a-f]{2})/gi, (_match, hex) =>
-      String.fromCharCode(Number.parseInt(hex, 16)),
-    );
-}
-
-function canonicalVariants(text) {
-  const variants = [text];
-  let current = text;
-  for (let depth = 0; depth < 8; depth += 1) {
-    const decoded = decodeJavaScriptEscapes(decodeHtmlEntities(percentDecode(current)));
-    if (decoded === current) {
-      return variants;
-    }
-    variants.push(decoded);
-    current = decoded;
-  }
-  throw new Error("Codificação excede o limite seguro de canonicalização.");
-}
-
-function base64Variants(text) {
-  const variants = [];
-  for (const match of text.matchAll(/(?:^|[^A-Za-z0-9+/_-])([A-Za-z0-9+/_-]{16,}={0,2})(?=$|[^A-Za-z0-9+/_=-])/g)) {
-    const candidate = match[1];
-    if (!candidate || candidate.length > 5_000_000) {
-      throw new Error("Candidato Base64 excede o limite seguro de tamanho.");
-    }
-    const normalized = candidate.replaceAll("-", "+").replaceAll("_", "/");
-    const padding = "=".repeat((4 - (normalized.length % 4)) % 4);
-    const decoded = Buffer.from(`${normalized}${padding}`, "base64");
-    const canonicalInput = normalized.replace(/=+$/, "");
-    const canonicalOutput = decoded.toString("base64").replace(/=+$/, "");
-    if (canonicalInput !== canonicalOutput || decoded.length === 0) {
-      continue;
-    }
-    const printable = [...decoded].filter(
-      (byte) => byte === 9 || byte === 10 || byte === 13 || (byte >= 32 && byte <= 126),
-    ).length;
-    if (printable / decoded.length < 0.8) {
-      continue;
-    }
-    variants.push(...canonicalVariants(decoded.toString("latin1")));
-  }
-  return variants;
-}
-
 function artifactVariants(bytes, kind) {
   const seedVariants = [bytes.toString("latin1")];
   if (kind === "text") {
@@ -157,12 +75,7 @@ function artifactVariants(bytes, kind) {
 
   const variants = new Set();
   for (const seed of seedVariants) {
-    for (const variant of canonicalVariants(seed)) {
-      variants.add(variant);
-      for (const decoded of base64Variants(variant)) {
-        variants.add(decoded);
-      }
-    }
+    for (const variant of textVariants(seed)) variants.add(variant);
   }
   return [...variants];
 }
@@ -218,6 +131,94 @@ async function findDraftRoutes(contentDirectory) {
   return drafts;
 }
 
+function parseFrontmatterData(source, path) {
+  const frontmatter = source.match(/^---\s*\r?\n([\s\S]*?)\r?\n---(?:\s*\r?\n|$)/)?.[1];
+  if (frontmatter === undefined) {
+    throw new Error(`Frontmatter ausente ou inválido em ${path}`);
+  }
+  try {
+    const data = parse(frontmatter) ?? {};
+    if (typeof data !== "object" || Array.isArray(data)) {
+      throw new Error("frontmatter deve ser um objeto");
+    }
+    return data;
+  } catch (error) {
+    throw new Error(`Frontmatter YAML inválido em ${path}: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+async function findWorkArtifactProblems(distDirectory, contentDirectory, publicFiles) {
+  const problems = [];
+  const workMetadata = new Map();
+  const worksDirectory = resolve(contentDirectory, "works");
+  const worksExist = await stat(worksDirectory).then((info) => info.isDirectory(), () => false);
+  if (worksExist) {
+    for (const path of await collectFiles(worksDirectory)) {
+      if (extname(path).toLowerCase() !== ".md") continue;
+      const id = relative(worksDirectory, path).split(sep).join("/").replace(/\.md$/i, "");
+      workMetadata.set(id, { path, data: parseFrontmatterData(await readFile(path, "utf8"), path) });
+    }
+  }
+
+  const controlledPdfs = new Map();
+  for (const path of publicFiles) {
+    if (extname(path).toLowerCase() !== ".pdf") continue;
+    const publicPath = relative(distDirectory, path).split(sep).join("/");
+    const match = /^documents\/works\/([a-z0-9]+(?:-[a-z0-9]+)*)\.pdf$/.exec(publicPath);
+    if (!match) {
+      problems.push(`PDF fora do diretório controlado documents/works/: ${publicPath}`);
+      continue;
+    }
+    controlledPdfs.set(match[1], path);
+  }
+
+  const completedIds = new Set([
+    ...controlledPdfs.keys(),
+    ...[...workMetadata.entries()]
+      .filter(([, { data }]) => data.draft === false && data.status === "completed")
+      .map(([id]) => id),
+  ]);
+  if (completedIds.size === 0) return problems;
+
+  const deliverablesPath = resolve(contentDirectory, "../data/deliverables.yml");
+  let deliverables = null;
+  try {
+    deliverables = parse(await readFile(deliverablesPath, "utf8"));
+  } catch {
+    problems.push(`manifesto canônico indisponível: ${deliverablesPath}`);
+  }
+  if (deliverables !== null && !Array.isArray(deliverables)) {
+    problems.push(`manifesto canônico deliverables.yml deve conter uma lista: ${deliverablesPath}`);
+    deliverables = null;
+  }
+
+  for (const id of completedIds) {
+    const source = workMetadata.get(id);
+    const expectedArtifact = `/documents/works/${id}.pdf`;
+    if (!source) {
+      problems.push(`PDF sem fonte pública controlada: ${id}`);
+      continue;
+    }
+    if (source.data.draft !== false || source.data.status !== "completed" || source.data.artifact !== expectedArtifact) {
+      problems.push(`estado público não autorizado para o PDF ${id}`);
+    }
+    const canonical = Array.isArray(deliverables)
+      ? deliverables.find((item) => item?.id === id)
+      : null;
+    if (canonical?.status !== "completed") {
+      problems.push(`entrega canônica não concluída em deliverables.yml: ${id}`);
+    }
+    if (!controlledPdfs.has(id)) {
+      problems.push(`PDF finalizado ausente em documents/works/: ${id}`);
+    }
+    const route = resolve(distDirectory, "trabalhos", id, "index.html");
+    if (!await stat(route).then((info) => info.isFile(), () => false)) {
+      problems.push(`rota pública finalizada ausente: ${id}`);
+    }
+  }
+  return problems;
+}
+
 async function scanPublicBuild(distDirectory, contentDirectory) {
   const distInfo = await stat(distDirectory);
   if (!distInfo.isDirectory()) {
@@ -239,16 +240,19 @@ async function scanPublicBuild(distDirectory, contentDirectory) {
     }
     const bytes = await readFile(path);
     const variants = artifactVariants(bytes, kind);
+    if (extname(path).toLowerCase() === ".pdf") {
+      variants.push(...textVariants(await extractPdfText(bytes)));
+    }
     if (kind === "text") {
       textArtifacts.push({ path, variants });
     }
 
-    for (const [label, pattern] of SECRET_PATTERNS) {
-      if (variants.some((variant) => pattern.test(variant))) {
-        problems.push(`${label}: ${relative(distDirectory, path)}`);
-      }
+    for (const label of findSecretLabels(variants)) {
+      problems.push(`${label}: ${relative(distDirectory, path)}`);
     }
   }
+
+  problems.push(...await findWorkArtifactProblems(distDirectory, contentDirectory, files));
 
   const combinedText = textArtifacts.flatMap(({ variants }) => variants).join("\n");
   const drafts = await findDraftRoutes(contentDirectory);

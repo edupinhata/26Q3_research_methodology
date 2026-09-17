@@ -4,5 +4,7 @@ dist/
 .playwright/
 test-results/
 playwright-report/
+.work-previews/
+public/documents/works/*.pdf
 .DS_Store
 *.log
