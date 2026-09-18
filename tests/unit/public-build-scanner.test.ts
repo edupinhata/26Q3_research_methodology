@@ -130,7 +130,7 @@ describe("public build scanner", () => {
   it("rejects a completed work PDF that bypasses canonical deliverable state", async () => {
     const { dist, content } = fixture();
     write(
-      resolve(content, "works/direct-publication.md"),
+      resolve(content, "works/direct-publication/index.md"),
       `---
 title: Publicação direta
 draft: false
@@ -140,6 +140,7 @@ artifact: /documents/works/direct-publication.pdf
 Apresentação pública.
 `,
     );
+    write(resolve(content, "works/direct-publication/work.md"), "# Trabalho integral não autorizado\n");
     write(resolve(dist, "trabalhos/direct-publication/index.html"), "<h1>Publicação direta</h1>");
     const pdfPath = resolve(dist, "documents/works/direct-publication.pdf");
     mkdirSync(dirname(pdfPath), { recursive: true });
@@ -158,7 +159,7 @@ Apresentação pública.
   it("accepts a finalized PDF only when source, route and canonical state agree", async () => {
     const { dist, content } = fixture();
     write(
-      resolve(content, "works/canonical-work.md"),
+      resolve(content, "works/canonical-work/index.md"),
       `---
 title: Trabalho canônico
 draft: false
@@ -168,6 +169,7 @@ artifact: /documents/works/canonical-work.pdf
 Apresentação pública.
 `,
     );
+    write(resolve(content, "works/canonical-work/work.md"), "# Trabalho integral canônico\n");
     write(
       resolve(content, "../data/deliverables.yml"),
       `- id: canonical-work
@@ -276,11 +278,37 @@ Apresentação pública.
   it("accepts a draft source when its route and identifier are absent from the build", () => {
     const { dist, content } = fixture();
     write(
-      resolve(content, "works/private-work.md"),
+      resolve(content, "works/private-work/index.md"),
       "---\ntitle: Trabalho privado\ndraft: true\n---\nNão publicar.",
     );
+    write(resolve(content, "works/private-work/work.md"), "# Trabalho integral privado\n");
     write(resolve(dist, "index.html"), "<h1>Conteúdo público</h1>");
 
     expect(scan(dist, content)).not.toThrow();
+  });
+
+  it("keeps a colocated work.md private and accepts it without public frontmatter", () => {
+    const { dist, content } = fixture();
+    write(
+      resolve(content, "works/private-work/index.md"),
+      "---\ntitle: Trabalho privado\ndraft: true\n---\nApresentação privada.",
+    );
+    write(resolve(content, "works/private-work/work.md"), "# Texto acadêmico integral\n\nConteúdo privado em elaboração.");
+    write(resolve(dist, "index.html"), "<h1>Conteúdo público</h1>");
+
+    expect(scan(dist, content)).not.toThrow();
+  });
+
+  it("rejects a public route generated from a colocated work.md source", () => {
+    const { dist, content } = fixture();
+    write(
+      resolve(content, "works/public-work/index.md"),
+      "---\ntitle: Trabalho público\ndraft: false\nstatus: in-progress\n---\nApresentação pública.",
+    );
+    write(resolve(content, "works/public-work/work.md"), "# Texto acadêmico integral\n\nNão deve possuir rota própria.");
+    write(resolve(dist, "trabalhos/public-work/index.html"), "<h1>Apresentação pública</h1>");
+    write(resolve(dist, "trabalhos/public-work/work/index.html"), "<h1>Texto acadêmico integral</h1>");
+
+    expect(scan(dist, content)).toThrow(/fonte integral|work\.md/i);
   });
 });

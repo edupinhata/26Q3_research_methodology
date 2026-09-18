@@ -99,6 +99,11 @@ async function findDraftRoutes(contentDirectory) {
     if (extname(path).toLowerCase() !== ".md") {
       continue;
     }
+    const parts = relative(contentDirectory, path).split(sep);
+    const collection = parts.shift();
+    if (collection === "works" && parts.at(-1) === "work.md") {
+      continue;
+    }
     const source = await readFile(path, "utf8");
     const frontmatter = source.match(/^---\s*\r?\n([\s\S]*?)\r?\n---(?:\s*\r?\n|$)/)?.[1] ?? "";
     let data;
@@ -118,13 +123,13 @@ async function findDraftRoutes(contentDirectory) {
       continue;
     }
 
-    const parts = relative(contentDirectory, path).split(sep);
-    const collection = parts.shift();
     const publicRoot = COLLECTION_ROUTES.get(collection);
     if (!publicRoot) {
       throw new Error(`Collection de draft sem rota conhecida: ${collection} (${path})`);
     }
-    const id = parts.join("/").replace(/\.md$/i, "");
+    const id = collection === "works"
+      ? parts.slice(0, -1).join("/")
+      : parts.join("/").replace(/\.md$/i, "");
     drafts.push({ path, publicPath: `/${publicRoot}/${id}/` });
   }
 
@@ -150,13 +155,33 @@ function parseFrontmatterData(source, path) {
 async function findWorkArtifactProblems(distDirectory, contentDirectory, publicFiles) {
   const problems = [];
   const workMetadata = new Map();
+  const workSources = new Set();
   const worksDirectory = resolve(contentDirectory, "works");
   const worksExist = await stat(worksDirectory).then((info) => info.isDirectory(), () => false);
   if (worksExist) {
     for (const path of await collectFiles(worksDirectory)) {
       if (extname(path).toLowerCase() !== ".md") continue;
-      const id = relative(worksDirectory, path).split(sep).join("/").replace(/\.md$/i, "");
-      workMetadata.set(id, { path, data: parseFrontmatterData(await readFile(path, "utf8"), path) });
+      const sourcePath = relative(worksDirectory, path).split(sep).join("/");
+      const match = /^([a-z0-9]+(?:-[a-z0-9]+)*)\/(index|work)\.md$/.exec(sourcePath);
+      if (!match) {
+        problems.push(`fonte Markdown inesperada em src/content/works/: ${sourcePath}`);
+        continue;
+      }
+      const [, id, kind] = match;
+      if (kind === "work") {
+        workSources.add(id);
+      } else {
+        workMetadata.set(id, { path, data: parseFrontmatterData(await readFile(path, "utf8"), path) });
+      }
+    }
+    for (const id of new Set([...workMetadata.keys(), ...workSources])) {
+      if (!workMetadata.has(id) || !workSources.has(id)) {
+        problems.push(`o trabalho ${id} deve conter index.md e work.md`);
+      }
+      const leakedRoute = resolve(distDirectory, "trabalhos", id, "work", "index.html");
+      if (await stat(leakedRoute).then((info) => info.isFile(), () => false)) {
+        problems.push(`fonte integral work.md publicada como rota: ${id}`);
+      }
     }
   }
 

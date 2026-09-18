@@ -8,7 +8,11 @@ const notesCollection = defineCollection({
 });
 
 const worksCollection = defineCollection({
-  loader: glob({ base: "./src/content/works", pattern: "**/*.md" }),
+  loader: glob({
+    base: "./src/content/works",
+    pattern: "**/index.md",
+    generateId: ({ entry }) => entry.replace(/\/index\.md$/, ""),
+  }),
   schema: academicSchemas.works,
 });
 

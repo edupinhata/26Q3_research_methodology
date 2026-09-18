@@ -3,8 +3,9 @@
 Este fluxo separa o texto acadêmico integral da apresentação curta exibida no site. Existe uma única fonte para o conteúdo acadêmico; a segunda entrada contém somente a ficha pública de navegação:
 
 ```text
-documents/<id>/work.md            # única fonte do trabalho acadêmico integral
-src/content/works/<id>.md         # ficha/apresentação pública, sem duplicar o trabalho
+src/content/works/<id>/
+├── index.md                      # ficha/apresentação pública, sem duplicar o trabalho
+└── work.md                       # única fonte do trabalho acadêmico integral
 ```
 
 As prévias em `.work-previews/<id>.pdf` e os PDFs públicos em `public/documents/works/<id>.pdf` são gerados automaticamente e não são versionados.
@@ -57,8 +58,8 @@ O comando:
 - prepara as duas fontes e a atualização canônica em arquivos temporários, restaurando o estado anterior se qualquer substituição falhar;
 - consulta título, tipo e prazo em `deliverables.yml`;
 - calcula `courseWeek` a partir de `course.startsOn` e `dueAt`;
-- cria `documents/<id>/work.md`;
-- cria `src/content/works/<id>.md` como draft;
+- cria `src/content/works/<id>/work.md`;
+- cria `src/content/works/<id>/index.md` como draft;
 - altera o estado canônico da entrega para `in-progress`.
 
 ## 3. Escrever
@@ -66,7 +67,7 @@ O comando:
 Escreva o trabalho integral em:
 
 ```text
-documents/<id>/work.md
+src/content/works/<id>/work.md
 ```
 
 O modelo inicial contém:
@@ -76,7 +77,7 @@ O modelo inicial contém:
 - Referências;
 - Declaração de uso de inteligência artificial.
 
-A página em `src/content/works/<id>.md` deve conter apenas uma apresentação pública breve. Não replique nela o texto integral nem os bastidores do processo.
+A página em `src/content/works/<id>/index.md` deve conter apenas uma apresentação pública breve. Não replique nela o texto integral nem os bastidores do processo. A coleção Astro carrega somente arquivos `index.md`; o `work.md` colocalizado não gera rota nem entrada pública própria.
 
 ## 4. Gerar e revisar o PDF
 
@@ -146,7 +147,7 @@ O workflow do GitHub Pages limpa a pasta gerada e regenera somente PDFs cujas p�
 
 A finalização prepara PDF e metadados em arquivos temporários, verifica a assinatura e o tamanho do PDF e só então substitui os destinos. Se uma substituição falhar, os arquivos originais são restaurados.
 
-Antes da publicação, a mesma política de detecção de credenciais é aplicada ao Markdown, ao corpo e a todo o frontmatter da ficha pública, e ao texto extraído do PDF. O scanner do build também extrai o conteúdo textual de PDFs comprimidos; não confia apenas nos bytes brutos do arquivo. Ele rejeita qualquer PDF fora de `documents/works/` e exige concordância entre artefato, rota, ficha e `deliverables.yml`.
+Antes da publicação, a mesma política de detecção de credenciais é aplicada ao Markdown, ao corpo e a todo o frontmatter da ficha pública, e ao texto extraído do PDF. O scanner do build também extrai o conteúdo textual de PDFs comprimidos; não confia apenas nos bytes brutos do arquivo. Ele rejeita qualquer PDF fora de `documents/works/`, exige concordância entre artefato, rota, ficha e `deliverables.yml` e bloqueia uma rota pública derivada de `work.md`.
 
 ## Política editorial
 
