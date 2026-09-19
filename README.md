@@ -183,7 +183,7 @@ tests/
 - aulas, feriados e marcos ficam em `src/data/schedule.yml`;
 - prazos e estados das entregas ficam em `src/data/deliverables.yml`;
 - conteúdo autoral fica sob `src/content/`;
-- fontes integrais de trabalhos acadêmicos ficam em `documents/<id>/work.md`;
+- cada trabalho fica agrupado em `src/content/works/<id>/`, com `index.md` para a apresentação e `work.md` para o texto integral;
 - prévias privadas ficam em `.work-previews/`, e PDFs finalizados são gerados em `public/documents/works/`; nenhum deles é versionado;
 - datas devem usar o formato ISO;
 - conteúdos incompletos devem permanecer com `draft: true`.
@@ -193,8 +193,8 @@ tests/
 O fluxo mantém responsabilidades separadas:
 
 - `src/data/deliverables.yml`: metadados e estado canônicos da entrega;
-- `documents/<id>/work.md`: única fonte do texto acadêmico integral;
-- `src/content/works/<id>.md`: apresentação pública curta e metadados da página;
+- `src/content/works/<id>/work.md`: única fonte do texto acadêmico integral;
+- `src/content/works/<id>/index.md`: apresentação pública curta e metadados da página;
 - `.work-previews/<id>.pdf`: prévia A4 privada e não versionada;
 - `public/documents/works/<id>.pdf`: artefato público gerado somente para trabalhos finalizados.
 
@@ -202,7 +202,7 @@ Execute todos os comandos abaixo na raiz do repositório.
 
 | Comando npm | Finalidade | Resultado principal |
 | --- | --- | --- |
-| `npm run work:new -- <id>` | Criar transacionalmente as fontes editáveis de uma entrega já cadastrada | `documents/<id>/work.md` e `src/content/works/<id>.md` |
+| `npm run work:new -- <id>` | Criar transacionalmente as fontes editáveis de uma entrega já cadastrada | `src/content/works/<id>/{index.md,work.md}` |
 | `npm run work:pdf -- <id>` | Gerar uma prévia privada durante a escrita | `.work-previews/<id>.pdf` |
 | `npm run work:finalize -- <id>` | Validar, finalizar os metadados e gerar o PDF público | `public/documents/works/<id>.pdf` |
 | `npm run work:pdf -- --all` | Limpar e regenerar os PDFs públicos canonicamente autorizados | PDFs dos trabalhos com estados concordantes e concluídos |
@@ -227,7 +227,7 @@ Também é possível informar o identificador como `--id <id-da-entrega>`.
 
 #### 3. Escrever e revisar
 
-Escreva o trabalho integral em `documents/<id>/work.md`. Em `src/content/works/<id>.md`, mantenha somente uma apresentação concisa; diários, planos e bastidores pertencem a `src/content/notes/`.
+Escreva o trabalho integral em `src/content/works/<id>/work.md`. Em `src/content/works/<id>/index.md`, mantenha somente uma apresentação concisa; diários, planos e bastidores pertencem a `src/content/notes/`. O loader da coleção aceita apenas `index.md`: `work.md` não recebe rota própria nem é listado como uma segunda publicação.
 
 Durante a escrita, gere quantas prévias privadas forem necessárias:
 

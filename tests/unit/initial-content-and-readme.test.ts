@@ -16,7 +16,7 @@ const expectedPublishedContent = {
     "processo-resumo-1-bad-career.md",
     "processo-resumo-2-how-to-read-a-paper.md",
   ],
-  works: ["resumo-1-bad-career.md", "resumo-2-how-to-read-a-paper.md"],
+  works: ["resumo-1-bad-career/index.md", "resumo-2-how-to-read-a-paper/index.md"],
   library: [
     "how-to-read-a-paper.md",
     "ai-tools-science-focus.md",
@@ -27,7 +27,7 @@ const expectedPublishedContent = {
 } as const;
 
 const expectedDraftContent = {
-  works: ["proposta-survey-review.md", "proposta-pre-projeto.md"],
+  works: ["proposta-survey-review/index.md", "proposta-pre-projeto/index.md"],
 } as const;
 
 const migratedDocuments = [
@@ -89,7 +89,7 @@ describe("conteúdo autoral inicial", () => {
   });
 
   it("atribui publicamente a fonte do Resumo 1", () => {
-    const source = readFileSync(resolve(projectRoot, "src/content/works/resumo-1-bad-career.md"), "utf8");
+    const source = readFileSync(resolve(projectRoot, "src/content/works/resumo-1-bad-career/index.md"), "utf8");
 
     expect(source).toContain("David A. Patterson");
     expect(source).toContain("https://people.eecs.berkeley.edu/~pattrsn/talks/BadCareer.pdf");
@@ -105,11 +105,11 @@ describe("conteúdo autoral inicial", () => {
   });
 
   it("separa registros de processo das fontes integrais sem fabricar trabalhos concluídos", () => {
-    expect(existsSync(resolve(projectRoot, "src/content/works/survey-review.md"))).toBe(false);
-    expect(existsSync(resolve(projectRoot, "src/content/works/diario-pre-projeto.md"))).toBe(false);
+    expect(existsSync(resolve(projectRoot, "src/content/works/survey-review/index.md"))).toBe(false);
+    expect(existsSync(resolve(projectRoot, "src/content/works/diario-pre-projeto/index.md"))).toBe(false);
 
     for (const id of migratedDocuments) {
-      const source = readFileSync(resolve(projectRoot, "documents", id, "work.md"), "utf8");
+      const source = readFileSync(resolve(projectRoot, "src/content/works", id, "work.md"), "utf8");
       expect(source).toContain("## Referências");
       expect(source).toContain("## Declaração de uso de inteligência artificial");
       expect(source).toMatch(/\[(?:Escreva|Registre|Informe|Descreva)/i);
@@ -156,6 +156,14 @@ A pergunta deverá ser específica o bastante para orientar coleta e análise, r
 O tema ainda não foi definido. As leituras e discussões iniciais servirão para formar um conjunto de problemas candidatos antes da escolha de um recorte.`);
 
     expect(existsSync(resolve(projectRoot, "public/documents/works"))).toBe(false);
+    expect(existsSync(resolve(projectRoot, "documents"))).toBe(false);
+  });
+
+  it("carrega somente index.md como ficha pública e mantém work.md fora da coleção", () => {
+    const config = readFileSync(resolve(projectRoot, "src/content.config.ts"), "utf8");
+
+    expect(config).toContain('pattern: "**/index.md"');
+    expect(config).toContain("generateId:");
   });
 });
 

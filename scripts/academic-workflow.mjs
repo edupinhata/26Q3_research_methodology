@@ -1,4 +1,4 @@
-import { access, lstat, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
+import { access, lstat, mkdir, readFile, readdir, rename, rm, rmdir, stat, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { chromium } from "@playwright/test";
 import MarkdownIt from "markdown-it";
@@ -15,6 +15,15 @@ function requireWorkId(id) {
   if (!WORK_ID.test(id)) {
     throw new Error("Identificador inválido: use apenas letras minúsculas, números e hífens.");
   }
+}
+
+function workSourcePaths(root, id) {
+  const workDirectory = resolve(root, "src/content/works", id);
+  return {
+    workDirectory,
+    documentPath: resolve(workDirectory, "work.md"),
+    pagePath: resolve(workDirectory, "index.md"),
+  };
 }
 
 async function assertNoSymlink(root, targetPath) {
@@ -115,8 +124,7 @@ export async function createWork({ root, id, date, operations = {} }) {
 
   const deliverablesPath = resolve(root, "src/data/deliverables.yml");
   const coursePath = resolve(root, "src/data/course.yml");
-  const documentPath = resolve(root, "documents", id, "work.md");
-  const pagePath = resolve(root, "src/content/works", `${id}.md`);
+  const { workDirectory, documentPath, pagePath } = workSourcePaths(root, id);
 
   await Promise.all([
     assertNoSymlink(root, deliverablesPath),
@@ -150,12 +158,8 @@ export async function createWork({ root, id, date, operations = {} }) {
   const index = deliverables.findIndex((item) => item?.id === id);
   document.setIn([index, "status"], "in-progress");
 
-  const documentDirectory = resolve(root, "documents", id);
-  const pageDirectory = resolve(root, "src/content/works");
-  await Promise.all([
-    mkdir(documentDirectory, { recursive: true }),
-    mkdir(pageDirectory, { recursive: true }),
-  ]);
+  const workDirectoryExisted = await exists(workDirectory);
+  await mkdir(workDirectory, { recursive: true });
   const nonce = `${process.pid}-${Date.now()}`;
   const stagedDocumentPath = `${documentPath}.${nonce}.staging`;
   const stagedPagePath = `${pagePath}.${nonce}.staging`;
@@ -173,6 +177,9 @@ export async function createWork({ root, id, date, operations = {} }) {
     ], operations.rename ?? rename);
   } catch (error) {
     await Promise.all(stagedPaths.map((path) => rm(path, { force: true }).catch(() => undefined)));
+    if (!workDirectoryExisted) {
+      await rmdir(workDirectory).catch(() => undefined);
+    }
     throw error;
   }
 
@@ -229,7 +236,7 @@ function pdfHtml({ title, course, institution, markdown }) {
 
 async function renderWorkPdf({ root, id, outputPath }) {
   requireWorkId(id);
-  const sourcePath = resolve(root, "documents", id, "work.md");
+  const { documentPath: sourcePath } = workSourcePaths(root, id);
   const deliverablesPath = resolve(root, "src/data/deliverables.yml");
   const coursePath = resolve(root, "src/data/course.yml");
   await Promise.all([
@@ -288,40 +295,42 @@ export async function generateWorkPdf({ root, id }) {
 }
 
 export async function generateAllWorkPdfs({ root }) {
-  const documentsDirectory = resolve(root, "documents");
+  const worksDirectory = resolve(root, "src/content/works");
   const publicDirectory = resolve(root, "public/documents/works");
   const deliverablesPath = resolve(root, "src/data/deliverables.yml");
   await Promise.all([
-    assertNoSymlink(root, documentsDirectory),
+    assertNoSymlink(root, worksDirectory),
     assertNoSymlink(root, publicDirectory),
     assertNoSymlink(root, deliverablesPath),
   ]);
   await rm(publicDirectory, { recursive: true, force: true });
-  if (!await exists(documentsDirectory)) {
+  if (!await exists(worksDirectory)) {
     return [];
   }
   const deliverables = parse(await readFile(deliverablesPath, "utf8"));
   if (!Array.isArray(deliverables)) {
     throw new Error("src/data/deliverables.yml deve conter uma lista.");
   }
-  const entries = await readdir(documentsDirectory, { withFileTypes: true });
+  const entries = await readdir(worksDirectory, { withFileTypes: true });
   const ids = [];
   for (const entry of entries) {
     if (entry.isSymbolicLink()) {
-      throw new Error(`Links simbólicos não são permitidos em documents/: ${entry.name}`);
+      throw new Error(`Links simbólicos não são permitidos em src/content/works/: ${entry.name}`);
     }
     if (!entry.isDirectory()) {
+      if (entry.isFile() && entry.name.toLowerCase().endsWith(".md")) {
+        throw new Error(`Estrutura legada não permitida em src/content/works/: ${entry.name}`);
+      }
       continue;
     }
     requireWorkId(entry.name);
-    const sourcePath = resolve(documentsDirectory, entry.name, "work.md");
-    const pagePath = resolve(root, "src/content/works", `${entry.name}.md`);
+    const { documentPath: sourcePath, pagePath } = workSourcePaths(root, entry.name);
     await Promise.all([
       assertNoSymlink(root, sourcePath),
       assertNoSymlink(root, pagePath),
     ]);
     if (!await exists(sourcePath) || !await exists(pagePath)) {
-      continue;
+      throw new Error(`O trabalho ${entry.name} deve conter index.md e work.md.`);
     }
     const pageSource = await readFile(pagePath, "utf8");
     const page = splitFrontmatter(pageSource, pagePath);
@@ -463,8 +472,7 @@ async function replaceStagedFiles(items, renameFile) {
 export async function finalizeWork({ root, id, date, operations = {} }) {
   requireWorkId(id);
   dateOnly(date, "date");
-  const documentPath = resolve(root, "documents", id, "work.md");
-  const pagePath = resolve(root, "src/content/works", `${id}.md`);
+  const { documentPath, pagePath } = workSourcePaths(root, id);
   const deliverablesPath = resolve(root, "src/data/deliverables.yml");
   await Promise.all([
     assertNoSymlink(root, documentPath),

@@ -53,8 +53,8 @@ describe("academic work workflow", () => {
     const result = await createWork({ root, id: "resumo-3-ai-science-focus", date: "2026-09-16" });
 
     expect(result).toEqual({
-      documentPath: resolve(root, "documents/resumo-3-ai-science-focus/work.md"),
-      pagePath: resolve(root, "src/content/works/resumo-3-ai-science-focus.md"),
+      documentPath: resolve(root, "src/content/works/resumo-3-ai-science-focus/work.md"),
+      pagePath: resolve(root, "src/content/works/resumo-3-ai-science-focus/index.md"),
     });
     const document = await readFile(result.documentPath, "utf8");
     expect(document).toContain("# Resumo 3 — AI tools expand scientists impact but contract sciences focus");
@@ -87,7 +87,7 @@ describe("academic work workflow", () => {
     expect(pdf.subarray(0, 5).toString("ascii")).toBe("%PDF-");
     expect(pdf.byteLength).toBeGreaterThan(5_000);
 
-    const pagePath = resolve(root, "src/content/works/resumo-3-ai-science-focus.md");
+    const pagePath = resolve(root, "src/content/works/resumo-3-ai-science-focus/index.md");
     const page = await readFile(pagePath, "utf8");
     await writeFile(pagePath, page.replace("draft: true", "draft: false").replace("status: in-progress", "status: completed"));
     expect(await generateAllWorkPdfs({ root })).toEqual([]);
@@ -320,8 +320,8 @@ IA generativa foi utilizada na revisão linguística; seleção de evidências e
     const root = await createFixture();
     const outside = await mkdtemp(resolve(tmpdir(), "academic-workflow-outside-"));
     temporaryRoots.push(outside);
-    await mkdir(resolve(root, "documents"), { recursive: true });
-    await symlink(outside, resolve(root, "documents/resumo-3-ai-science-focus"), "junction");
+    await mkdir(resolve(root, "src/content/works"), { recursive: true });
+    await symlink(outside, resolve(root, "src/content/works/resumo-3-ai-science-focus"), "junction");
 
     await expect(createWork({ root, id: "resumo-3-ai-science-focus", date: "2026-09-16" })).rejects.toThrow(
       /link simbólico/i,
@@ -394,8 +394,9 @@ IA utilizada somente para apoiar a verificação técnica deste fluxo de teste.
       },
     })).rejects.toThrow(/falha de criação injetada/i);
 
-    await expect(access(resolve(root, "documents/resumo-3-ai-science-focus/work.md"))).rejects.toThrow();
-    await expect(access(resolve(root, "src/content/works/resumo-3-ai-science-focus.md"))).rejects.toThrow();
+    await expect(access(resolve(root, "src/content/works/resumo-3-ai-science-focus/work.md"))).rejects.toThrow();
+    await expect(access(resolve(root, "src/content/works/resumo-3-ai-science-focus/index.md"))).rejects.toThrow();
+    await expect(access(resolve(root, "src/content/works/resumo-3-ai-science-focus"))).rejects.toThrow();
     expect(await readFile(deliverablesPath, "utf8")).toBe(originalDeliverables);
   });
 
@@ -473,8 +474,8 @@ IA utilizada somente para revisão linguística neste teste controlado.
       ),
     );
     await createWork({ root, id: "resumo-3-ai-science-focus", date: "2026-09-16" });
-    const documentPath = resolve(root, "documents/resumo-3-ai-science-focus/work.md");
-    const pagePath = resolve(root, "src/content/works/resumo-3-ai-science-focus.md");
+    const documentPath = resolve(root, "src/content/works/resumo-3-ai-science-focus/work.md");
+    const pagePath = resolve(root, "src/content/works/resumo-3-ai-science-focus/index.md");
     await writeFile(documentPath, `# Resumo seguro
 
 ## Resumo
