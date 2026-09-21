@@ -93,6 +93,92 @@ describe("academic work workflow", () => {
     expect(await generateAllWorkPdfs({ root })).toEqual([]);
   });
 
+  it("rejects empty numbered or Roman-numeral list items in finalized documents", async () => {
+    const root = await createFixture();
+    const { documentPath, pagePath } = await createWork({
+      root,
+      id: "resumo-3-ai-science-focus",
+      date: "2026-09-16",
+    });
+    await writeFile(
+      documentPath,
+      `# Resumo 3
+
+## Resumo
+
+Este texto autoral está completo, exceto pela enumeração vazia abaixo.
+
+IV.
+
+## Referências
+
+AUTOR, A. Referência bibliográfica válida para o teste. 2026.
+
+## Declaração de uso de inteligência artificial
+
+IA generativa foi utilizada somente para apoiar a revisão linguística deste texto.
+`,
+    );
+    await writeFile(
+      pagePath,
+      (await readFile(pagePath, "utf8")).replace(
+        "[Escreva aqui uma apresentação pública breve do trabalho, sem repetir o texto integral.]",
+        "Apresentação pública completa usada para validar enumerações vazias.",
+      ),
+    );
+
+    await expect(finalizeWork({
+      root,
+      id: "resumo-3-ai-science-focus",
+      date: "2026-10-10",
+    })).rejects.toThrow(/incompleto|pendente/i);
+  });
+
+  it("allows ordinary lowercase words resembling Roman numerals and the Portuguese word todo", async () => {
+    const root = await createFixture();
+    const { documentPath, pagePath } = await createWork({
+      root,
+      id: "resumo-3-ai-science-focus",
+      date: "2026-09-16",
+    });
+    await writeFile(
+      documentPath,
+      `# Resumo 3
+
+## Resumo
+
+Este texto percorre todo o processo de pesquisa e apresenta uma análise autoral completa.
+
+civil.
+
+mil.
+
+mix.
+
+## Referências
+
+AUTOR, A. Referência bibliográfica válida para o teste. 2026.
+
+## Declaração de uso de inteligência artificial
+
+IA generativa foi utilizada somente para apoiar a revisão linguística deste texto.
+`,
+    );
+    await writeFile(
+      pagePath,
+      (await readFile(pagePath, "utf8")).replace(
+        "[Escreva aqui uma apresentação pública breve do trabalho, sem repetir o texto integral.]",
+        "Apresentação pública completa usada para validar palavras comuns em português.",
+      ),
+    );
+
+    await expect(finalizeWork({
+      root,
+      id: "resumo-3-ai-science-focus",
+      date: "2026-10-10",
+    })).resolves.toMatchObject({ pdfPath: expect.stringMatching(/\.pdf$/) });
+  });
+
   it("fails closed on placeholders and finalizes synchronized metadata only after a complete document", async () => {
     const root = await createFixture();
     const { documentPath, pagePath } = await createWork({
@@ -310,6 +396,7 @@ IA generativa foi utilizada na revisão linguística; seleção de evidências e
     expect(finalizedPage).toContain("status: completed");
     expect(finalizedPage).toContain("artifact: /documents/works/resumo-3-ai-science-focus.pdf");
     expect(finalizedPage).toContain("Trabalho finalizado e PDF verificado.");
+    expect(finalizedPage).toContain('date: "2026-10-10"');
     deliverables = parse(await readFile(resolve(root, "src/data/deliverables.yml"), "utf8"));
     expect(deliverables[0].status).toBe("completed");
 

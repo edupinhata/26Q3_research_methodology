@@ -2,7 +2,7 @@ import { access, lstat, mkdir, readFile, readdir, rename, rm, rmdir, stat, write
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { chromium } from "@playwright/test";
 import MarkdownIt from "markdown-it";
-import { parse, parseDocument, stringify } from "yaml";
+import { parse, parseDocument, Scalar, stringify } from "yaml";
 import { extractPdfText, findSecretLabels, textVariants } from "./publication-safety.mjs";
 
 const WORK_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -366,10 +366,18 @@ function splitFrontmatter(source, path) {
 }
 
 function validateReadyForPublication(documentSource, pageBody, pageSource = pageBody) {
-  const pendingMarker = /(?:\[[^\]]*(?:PLACEHOLDER|Escreva|Registre|Informe|Descreva|Insira|Preencha|Insert|Enter|Write|Describe|Provide|Add|TODO|TBD)[^\]]*\]|Substitua todos os marcadores|\b(?:PLACEHOLDER|TODO|TBD|FIXME|PENDENTE|PREENCHER)\b|^\s*(?:\.{3}|…|_{3,}|-{3,})\s*$|\{\{[^}]+\}\}|<!--[\s\S]*?-->)/im;
-  const standaloneBracketPlaceholder = /^\s*\[[^\]\r\n]{4,}\]\s*$/m;
-  const pendingInDocument = pendingMarker.test(documentSource) || standaloneBracketPlaceholder.test(documentSource);
-  const pendingInPage = pendingMarker.test(pageBody) || standaloneBracketPlaceholder.test(pageBody);
+  const pendingMarker = /(?:\[[^\]]*(?:PLACEHOLDER|Escreva|Registre|Informe|Descreva|Insira|Preencha|Insert|Enter|Write|Describe|Provide|Add)[^\]]*\]|Substitua todos os marcadores|\b(?:PLACEHOLDER|PENDENTE|PREENCHER)\b|^\s*(?:\.{3}|…|_{3,}|-{3,})\s*$|^\s*(?:[-*+]|\d+[.)])\s*$|\{\{[^}]+\}\}|<!--[\s\S]*?-->)/im;
+  const uppercasePendingMarker = /\b(?:TODO|TBD|FIXME)\b/;
+  const emptyRomanNumeralListItem = /^\s*[IVXLCDM]+[.)]\s*$/m;
+  const standaloneBracketPlaceholder = /^\s*\[.{4,}\]\s*$/m;
+  const pendingInDocument = pendingMarker.test(documentSource)
+    || uppercasePendingMarker.test(documentSource)
+    || emptyRomanNumeralListItem.test(documentSource)
+    || standaloneBracketPlaceholder.test(documentSource);
+  const pendingInPage = pendingMarker.test(pageBody)
+    || uppercasePendingMarker.test(pageBody)
+    || emptyRomanNumeralListItem.test(pageBody)
+    || standaloneBracketPlaceholder.test(pageBody);
   if (pendingInDocument || pendingInPage) {
     throw new Error(`O trabalho está incompleto ou contém marcadores pendentes (${pendingInDocument ? "documento" : "página"}).`);
   }
@@ -503,7 +511,9 @@ export async function finalizeWork({ root, id, date, operations = {} }) {
   if (!revisions || !Array.isArray(revisions.items)) {
     throw new Error(`revisions deve ser uma lista em ${pagePath}.`);
   }
-  revisions.add({ date, description: "Trabalho finalizado e PDF verificado." });
+  const revisionDate = new Scalar(date);
+  revisionDate.type = Scalar.QUOTE_DOUBLE;
+  revisions.add({ date: revisionDate, description: "Trabalho finalizado e PDF verificado." });
 
   const deliverablesDocument = parseDocument(deliverablesSource, { keepSourceTokens: true });
   deliverablesDocument.setIn([deliverableIndex, "status"], "completed");
