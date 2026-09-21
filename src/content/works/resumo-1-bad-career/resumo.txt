@@ -1,0 +1,54 @@
+# Resumo 1 — How to Have a Bad Career in Research/Academia
+
+## Resumo
+
+David Patterson é um acadêmico que foi professor na universidade de Berkeley, e atuou em projetos no Google desde 2016.
+
+Sua palestra tem a intenção de trazer conselhos sobre como ser um bom profissional em pesquisa e na carreira acadêmica, iniciando de maneira irônica com ótimas dicas de como ter uma carreira ruim. As ótimas dicas são claramente más práticas antagonizando as verdadeiras dicas que gostaria de trazer, as quais são apresentadas subsequentemente.
+
+Dentre as dicas ruins, ele trás:
+1. **Ser o especialista na sua área:** ele trás maneiras controversas de se tornar o especialista em uma área, como escolher temas antigos, permanecer no mesmo tema por muito tempo mesmo que este tema não tenha utilidade.
+2. **Manter a complexidade como seu guia:** ele defende que presar pela complexidade evita revisões e críticas, uma vez que o conteúdo é complexo demais para qualquer pessoa trabalhar e colaborar sobre ele.
+3. **Nunca ser provado errado:** ser o especialista em sua área e publicar trabalhos complexos, combinado com outras "técnicas" como não deixar outras pessoas falarem, não fornecer dados quantitativos suficientes para que as pessoas possam verificar seus resultados fazem com que nunca consigam mostrar que você está errado.
+4. **Utilizar o "Método Científico Computacional":** em contraposição com o método científico, o método científico computacional utiliza elementos como intuição sobre resultados ao invés de testar resultados, falta de dados confiáveis, e rodar experimentos de métodos que não possibilite o controle das variáveis.
+5. **Não ser distraído pelo conselho dos outros:** por ser o especialista, ninguém teria autoridade suficiente para dar conselhos que melhorem sua performance. Então conversar com outras pessoas ou conseguir revisões, apenas atrasam a pesquisa. 
+6. **Publicar artigo (somente) é o melhor meio de transferência de tecnologia:** como especialista, seu trabalho é escrever artigos com seus resultados. Fazer de modo que outros possam entendê-los facilmente, levá-los a congressos ou qualquer promoção tiraria tempo de sua pesquisa e não colaboraria com a expansão de suas publicações.
+7. **Táticas de escrita para maximizar as publicações:** prezar volume à qualidade. Nessa linha de raciocínio, uma única ideia viraria dezenas de publicações. Quanto mais simples a publicação, maior a quantidade desse tipo de publicação.
+
+Adicionalmente, ele trás listas de bons conselhos para ter uma carreira ruim e carinhosamente apelida de "5 Mandamentos de escrita para ter uma carreira ruim" e "10 mandamentos de palestras para ter uma carreira ruim".
+
+Os 5 mandamentos de escrita para uma carreira ruim seriam se resumem:
+1. Não definir termos ou explicar qualquer coisa para facilitar o entendimento.
+2. Dizer que construiu algo mesmo sem ter construído algo completo e funcional, uma vez que haveria formas de lidar com futuras verificações. 
+3. Não colocar desvantagens do trabalho, deixando isso a cargo dos revisores.
+4. Não revisar artigos que não sejam seus próprios, afinal, você é o especialista.
+5. Publicar antes de implementar, uma vez que no mundo das ideias, uma solução é sempre mais rápida.
+
+Dentre os 10 mandamentos para palestras incluem pontos como má edição de apresentações, ou adição de elementos inúteis fazendo com que a visualização e compreensão das apresentações fiquem debilitadas. Dentre os mandamentos também incluem a falta de preocupação com apresentação ao não praticar a apresentação ou explicar de forma a ficar difícil de compreender o que foi dito.
+
+
+Em seguida ele discorre sobre o oposto de cada um dos pontos apresentados, trazendo a tona os verdadeiros bons conselhos para se ter uma carreira boa como pesquisador.
+Ele utiliza alguns conselhos de Richard Hamming para corroborar e ilustrar seus pontos.
+
+Por fim, ele utiliza todos os conselhos dados para dar um direcionamento de como liderar um projeto, o que compreende em 6 passos:
+1. **Selecionar um problema:** é necessário encontrar algo que outras pessoas achem importantes, fazendo a conexão de sua percepção com a realidade. Além disso, investir o tempo e recursos limitados em algo que realmente fará a diferença.
+2. **Escolher uma solução:** sempre procurar buscar algo simples, deixando algo complexo quando realmente for necessário. Complexidade custa caro e leva tempo, fazendo com que o trabalho possa ficar defasado muito facilmente.
+3. **Executar o projeto:** ao executar um projeto é necessário se preocupar com a direção que ele está indo, e se ele não ficou defasado no meio do caminho. Feedback e reflexões são aliados nesse momento. 
+4. **Concluir um projeto:** ao executar um projeto há pontos mais divertidos e outros nem tanto. Mas é preciso lembrar que apenas projetos concluídos são contados. Além disso, trabalhar em um projeto do começo ao final é o que vai trazer a percepção do que funciona ou não dentro de um projeto.
+5. **Avaliar quantitativamente o projeto:** não se provar errado não é suficiente, é necessário provar que métodos, conclusões estão certas por meio de evidências quantitativas.
+6. **Fazer a transferência de tecnologia apropriadamente:** artigos não são suficientes para transferir o conhecimento adquirido e desenvolvidos. É necessário ter um papel ativo na participação de congressos, simpósios, conversas para divulgar os trabalhos e resultados.
+
+Ao final, ele discorre sobre algumas dicas mais pessoais que funcionam para ele, como priorizar família, não descuidar das coisas que não são trabalhos. 
+
+		
+## Considerações críticas
+
+[Registre aqui a análise autoral, se exigida pela atividade.
+
+## Referências
+
+PATTERSON, David A. *How to Have a Bad Career in Research/Academia*. Palestra, novembro de 2001. Slides públicos: https://people.eecs.berkeley.edu/~pattrsn/talks/BadCareer.pdf.
+
+## Declaração de uso de inteligência artificial
+
+[Descreva como a inteligência artificial foi utilizada ou declare que ela não foi utilizada.]
