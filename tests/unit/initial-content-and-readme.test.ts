@@ -95,25 +95,33 @@ describe("conteúdo autoral inicial", () => {
     expect(source).toContain("https://people.eecs.berkeley.edu/~pattrsn/talks/BadCareer.pdf");
   });
 
-  it("reflete o início efetivo do Resumo 1 na fonte única de prazos", () => {
+  it("reflete a conclusão do Resumo 1 na fonte única de prazos", () => {
     const deliverables = parse(readFileSync(resolve(projectRoot, "src/data/deliverables.yml"), "utf8")) as Array<{
       id: string;
       status: string;
     }>;
 
-    expect(deliverables.find(({ id }) => id === "resumo-1-bad-career")?.status).toBe("in-progress");
+    expect(deliverables.find(({ id }) => id === "resumo-1-bad-career")?.status).toBe("completed");
   });
 
-  it("separa registros de processo das fontes integrais sem fabricar trabalhos concluídos", () => {
+  it("separa registros de processo das fontes integrais e preserva o único trabalho concluído", () => {
     expect(existsSync(resolve(projectRoot, "src/content/works/survey-review/index.md"))).toBe(false);
     expect(existsSync(resolve(projectRoot, "src/content/works/diario-pre-projeto/index.md"))).toBe(false);
 
-    for (const id of migratedDocuments) {
+    for (const id of migratedDocuments.filter((id) => id !== "resumo-1-bad-career")) {
       const source = readFileSync(resolve(projectRoot, "src/content/works", id, "work.md"), "utf8");
       expect(source).toContain("## Referências");
       expect(source).toContain("## Declaração de uso de inteligência artificial");
       expect(source).toMatch(/\[(?:Escreva|Registre|Informe|Descreva)/i);
     }
+
+    const completedResumo = readFileSync(
+      resolve(projectRoot, "src/content/works/resumo-1-bad-career/work.md"),
+      "utf8",
+    );
+    expect(completedResumo).toContain("## Referências");
+    expect(completedResumo).toContain("## Declaração de uso de inteligência artificial");
+    expect(completedResumo).not.toMatch(/\[(?:Escreva|Registre|Informe|Descreva)/i);
 
     const resumo1Process = readFileSync(resolve(projectRoot, "src/content/notes/processo-resumo-1-bad-career.md"), "utf8");
     expect(resumo1Process).toContain("## Método de trabalho");
@@ -155,7 +163,6 @@ A pergunta deverá ser específica o bastante para orientar coleta e análise, r
 
 O tema ainda não foi definido. As leituras e discussões iniciais servirão para formar um conjunto de problemas candidatos antes da escolha de um recorte.`);
 
-    expect(existsSync(resolve(projectRoot, "public/documents/works"))).toBe(false);
     expect(existsSync(resolve(projectRoot, "documents"))).toBe(false);
   });
 

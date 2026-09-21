@@ -105,7 +105,7 @@ V. Você deve publicar antes de implementar, porque um sistema não implementado
 I. Você não precisa ser cuidadoso: porque investir tempo arrumando erros de gramática, erros ortográficos se esse tempo seria melhor aplicado em pesquisa? 
 II. Não desperdiçar espaço. Espaço no computador é dinheiro desperdiçado. 
 III. Não prezar por ser conciso
-IV. 
+IV. Usar animações e elementos decorativos que escondam o conteúdo dos slides.
 V. Não usar fontes grandes
 VI. Não usar cores
 VII. Não usar ilustrações. A sabedoria diz: "Uma imagem vale mais que mil palavras", mas quem liga para a sabedoria?

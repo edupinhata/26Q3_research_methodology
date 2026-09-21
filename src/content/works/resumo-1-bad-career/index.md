@@ -1,20 +1,25 @@
 ---
 title: "Resumo 1 — How to Have a Bad Career in Research/Academia"
-description: "Apresentação da primeira síntese crítica, centrada em escolhas de carreira e práticas de pesquisa."
+description: "Apresentação da primeira síntese crítica, centrada em escolhas de
+  carreira e práticas de pesquisa."
 publishedAt: "2026-09-16"
-tags: ["resumo", "carreira-acadêmica", "prática-de-pesquisa"]
+tags: [ "resumo", "carreira-acadêmica", "prática-de-pesquisa" ]
 draft: false
 revisions:
   - date: "2026-09-16"
     description: "Registro inicial do objetivo e do método de leitura."
   - date: "2026-09-16"
     description: "Página reduzida à apresentação pública; texto integral separado."
+  - date: "2026-09-20"
+    description: "Trabalho finalizado e PDF verificado."
 type: "summary"
-status: "in-progress"
+status: "completed"
 dueAt: "2026-09-20T23:59:00-03:00"
 courseWeek: 1
 featured: true
-aiUsage: "IA generativa foi usada para apoiar a estrutura e a revisão linguística desta apresentação pública. A declaração específica do trabalho será incluída no documento integral."
+aiUsage: "IA generativa foi usada para conferir a fidelidade do resumo à palestra
+  e apoiar a revisão gramatical. A declaração completa consta no documento."
+artifact: /documents/works/resumo-1-bad-career.pdf
 ---
 
 ## Apresentação
@@ -29,4 +34,4 @@ David A. Patterson. *How to Have a Bad Career in Research/Academia*. Palestra, n
 
 ## Disponibilidade
 
-O texto integral está em elaboração. O PDF será disponibilizado somente depois da revisão acadêmica, editorial e de privacidade.
+O texto integral foi finalizado e está disponível em PDF nesta página.
