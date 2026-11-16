@@ -1,34 +1,16 @@
 # Resumo 3 — Artificial intelligence tools expand scientists’ impact but contract science’s focus
 
-**Autor:** Eduardo Pinhata
-
-## Sobre o artigo
-- **Nome completo do autor principal:** Qianyue Hao
-- **Título do artigo:** Artificial intelligence tools expand scientists’ impact but contract science’s focus
-- **Área de pesquisa do autor principal:** Aprendizado por reforço, Modelo de Linguagem em Larga Escala
-- **Número de citações do documento (no Google Scholar):** 294
-- **Índice-h do autor principal (no Google Scholar, se tiver cadastrado):** 14
-
-
-## Liste duas perguntas que o artigo tenta responder
-
-1. Qual o impacto do uso de ferramentas de inteligência artificial na carreira acadêmica?
-
-## Liste duas publicações importantes que citaram o documento
-
-- HE, Y.; BU, Y. Academic journals’ AI policies fail to curb the surge in AI-assisted academic writing. Proceedings of the National Academy of Sciences, v. 123, n. 9, e2526734123, 2026. DOI: 10.1073/pnas.2526734123.
-- JU, H.; ARAL, S. Collaborating with AI Agents: Field Experiments on Teamwork, Productivity, and Performance. arXiv, preprint arXiv:2503.18238, 2025. DOI: 10.48550/arXiv.2503.18238.
-
+Texto transcrito do PDF final do Overleaf. O PDF indicado em sourcePdf é a versão de referência para publicação.
 
 ## Resumo
 
-O presente artigo faz uma análise do impacto do uso de inteligência artificial na carreira de pesquisadores de áreas que não pesquisam diretamente sobre Inteligência Artificial, a saber, 
-
+O artigo analisa o impacto do uso de inteligência artificial (IA) na carreira de pesquisadores e na abrangência temática da ciência, considerando biologia, quı́mica, geologia, ciência dos materiais, medicina e fı́sica. Ciência da computação e matemática foram excluı́das intencionalmente, pois o objetivo era investigar pesquisas que utilizam IA como ferramenta, em vez de trabalhos voltados ao desenvolvimento dos próprios métodos de IA. Os autores analisaram 41.298.433 artigos publicados entre 1980 e 2025, disponı́veis na base OpenAlex. Para identificar pesquisas com IA, ajustaram o modelo de linguagem BERT para classificar tı́tulos e resumos, utilizando no treinamento trabalhos de periódicos e conferências especializados em IA. A classificação foi validada por especialistas, cuja concordância apresentou um kappa de Fleiss médio de 0,964. O modelo alcançou um F1-score médio de 0,875, tomando essas classificações como referência. O perı́odo foi dividido em três eras: aprendizado de máquina, aprendizado profundo e IA generativa. Foram identificados 310.957 artigos com IA, equivalentes a 0,75% do conjunto histórico. Entre 1980 e 2025, a proporção desses artigos aumentou em todas as áreas, com fatores de crescimento entre 10,70 vezes na geologia e 51,89 vezes na biologia. Os artigos com IA receberam, em média, 98,7% mais citações anuais do que aqueles sem IA. Os pesquisadores que adotaram IA publicaram 3,02 vezes mais artigos por ano e receberam 4,84 vezes mais citações anuais. Os trabalhos com IA também apresentaram equipes menores, com uma diferença média de 1,33 pesquisador por equipe. A adoção de IA esteve associada a uma transição mais rápida para a condição de “pesquisador estabelecido”, definida pela primeira publicação como último autor, posição utilizada como indicador de liderança. Contado desde a primeira publicação, o tempo médio estimado foi de 7,33 anos para pesquisadores com IA e 8,70 anos para aqueles sem IA. Apesar dessas vantagens individuais, as pesquisas com IA apresentaram menor abrangência temática coletiva. A medida de extensão do conhecimento (knowledge extent) teve uma redução mediana de 4,63%. Esse resultado se refere à amplitude temática dos conjuntos de artigos, não à qualidade de cada trabalho. Também houve 22% menos engajamento entre trabalhos que citam uma mesma pesquisa com IA, medido pelas citações desses trabalhos entre si. Na interpretação dos autores, essa concentração está relacionada à disponibilidade de dados, favorecendo a resolução de problemas conhecidos em vez da formulação de novas perguntas. Questões com poucos dados podem receber menos atenção. Como o estudo é observacional, seus resultados não estabelecem definitivamente que a IA cause todas as diferenças encontradas. Por fim, os autores propõem incorporar capacidades sensoriais e experimentais aos sistemas de IA, apoiando a coleta de novos tipos de dados em domı́nios antes inacessı́veis e ampliando a exploração das fronteiras do conhecimento.
 
 ## Referências
 
-
+[1] Qianyue Hao, Fengli Xu, Yong Li, and James Evans. Artificial intelligence tools expand scientists’ impact but contract science’s focus. Nature, 649:1237–1243, 2026.
+ [2] Yongyuan He and Yi Bu. Academic journals’ AI policies fail to curb the surge in AI-assisted academic writing. Proceedings of the National Academy of Sciences, 123(9):e2526734123, 2026. [3] Harang Ju and Sinan Aral. Collaborating with AI agents: Field experiments on teamwork, productivity, and performance, 2025.
 
 ## Declaração de uso de inteligência artificial
 
-
+Declaro que utilizei o Codex, da OpenAI, como ferramenta de apoio à compreensão do artigo, ao esclarecimento de conceitos e figuras, à organização de referências bibliográficas em formato BibTeX e à revisão e sı́ntese do resumo que redigi inicialmente. A ferramenta auxiliou na correção linguı́stica e conceitual e na adequação do texto ao limite de palavras. Assumo a responsabilidade pela conferência das informações, pela seleção do conteúdo e pela versão final apresentada.

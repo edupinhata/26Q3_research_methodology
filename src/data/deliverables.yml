@@ -24,7 +24,7 @@
   type: "summary"
   assessment: "A2"
   dueAt: "2026-10-11T23:59:00-03:00"
-  status: "in-progress"
+  status: "completed"
   restrictedSource: true
 - id: "apresentacao-survey-review"
   title: "Arquivo da apresentação do survey/review"

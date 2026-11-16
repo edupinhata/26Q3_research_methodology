@@ -40,7 +40,7 @@ A captura é gerada a partir do build de produção e funciona como atalho para 
 
 ## Atualização de 16/11/2026
 
-A página inicial destaca a apresentação sobre LLMs para otimização combinatória, com acesso direto aos slides. O portfólio inclui os resumos 2, 4 e 5 concluídos, o Resumo 3 em elaboração, o acompanhamento de banca ForensicAgent e as notas de aula recentes. A proposta escrita do survey continua em desenvolvimento. PDFs já diagramados podem ser preservados com `sourcePdf`, conforme o fluxo acadêmico documentado.
+A página inicial destaca a apresentação sobre LLMs para otimização combinatória, com acesso direto aos slides. O portfólio inclui os resumos 1 a 5 concluídos, com os PDFs finais do Overleaf, o acompanhamento de banca ForensicAgent e as notas de aula recentes. A proposta escrita do survey continua em desenvolvimento. PDFs já diagramados podem ser preservados com `sourcePdf`, conforme o fluxo acadêmico documentado.
 
 ## Funcionalidades atuais
 

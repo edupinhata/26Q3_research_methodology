@@ -12,16 +12,19 @@ revisions:
     description: "Página reduzida à apresentação pública; texto integral separado."
   - date: "2026-09-20"
     description: "Trabalho finalizado e PDF verificado."
+  - date: "2026-11-16"
+    description: Link atualizado para o PDF final diagramado em LaTeX no Overleaf.
 type: "summary"
 status: "completed"
 dueAt: "2026-09-20T23:59:00-03:00"
 courseWeek: 1
 featured: true
-aiUsage: "IA generativa foi usada para conferir a fidelidade do resumo à palestra
-  e apoiar a revisão gramatical. A declaração completa consta no documento."
+aiUsage: "IA generativa foi usada para conferir a fidelidade do resumo à
+  palestra e apoiar a revisão gramatical. A declaração completa consta no
+  documento."
 artifact: /documents/works/resumo-1-bad-career.pdf
+sourcePdf: CCM_002_2026_3___How_to_Have_a_Bad_Career_in_Research.pdf
 ---
-
 ## Apresentação
 
 Síntese crítica da palestra *How to Have a Bad Career in Research/Academia*, com atenção aos conselhos apresentados por contraste e à relação deles com formação, colaboração e comunicação científica.
