@@ -156,3 +156,11 @@ Antes da publicação, a mesma política de detecção de credenciais é aplicad
 - Verifique referências, autoria, privacidade e declaração de uso de IA.
 - Não inclua cookies, tokens, URLs de sessão ou caminhos locais.
 - O PDF é o artefato acadêmico integral; a página HTML é sua apresentação pública acessível e pesquisável.
+
+## Importar um PDF já concluído
+
+Uma entrega com slides ou documento já diagramado pode declarar `sourcePdf: "apresentacao.pdf"` no `index.md`. O arquivo deve estar na própria pasta do trabalho, ser versionado e ter nome simples (sem diretórios). Nesse caso, o fluxo preserva os bytes do PDF original em vez de renderizar `work.md`. O Markdown mantém o registro textual e as declarações editoriais; o PDF indicado é a fonte integral do artefato.
+
+As condições de publicação continuam iguais: estado `completed` no manifesto e na página, `draft: false`, caminho público canônico, validação do conteúdo e verificação do PDF. Arquivos externos à pasta, links simbólicos e PDFs inválidos são rejeitados. Arquivos de apoio não indicados por `sourcePdf` não são copiados para o site.
+
+A apresentação oral do survey está registrada em 16/11/2026 por informação do aluno. O prazo original de envio do arquivo permanece no histórico; a atualização não representa uma nova conferência do Moodle.

@@ -193,6 +193,7 @@ const works = commonSchema.extend({
   courseWeek: z.number().int().positive("A semana da disciplina deve ser positiva."),
   featured: z.boolean().default(false),
   artifact: publicArtifactPath.optional(),
+  sourcePdf: z.string().regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.pdf$/).optional(),
   aiUsage: requiredText("A declaração de uso de IA"),
 });
 

@@ -98,7 +98,7 @@ describe("typed course source data", () => {
     expect(deliverables.every(({ dueAt }) => /T\d{2}:\d{2}:\d{2}-03:00$/.test(dueAt))).toBe(true);
     expect(deliverables.every(({ restrictedSource }) => restrictedSource)).toBe(true);
     expect(findNextDeliverable(deliverables, new Date("2026-09-21T00:00:00-03:00"))?.id).toBe(
-      "resumo-2-how-to-read-a-paper",
+      "proposta-survey-review",
     );
   });
 

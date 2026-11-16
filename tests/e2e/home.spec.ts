@@ -22,8 +22,8 @@ test("presents the course, deadline, progress, and published-content regions", a
     "10",
   );
   const recentContent = page.getByRole("region", { name: "Conteúdo recente" });
-  await expect(recentContent).toContainText("Aula de 14/09 — início do percurso");
+  await expect(recentContent).toContainText("Apresentação — LLMs para otimização combinatória");
   await expect(
-    recentContent.getByRole("link", { name: "Boas-vindas ao caderno de pesquisa", exact: true }),
-  ).toHaveAttribute("href", "/26Q3_research_methodology/anotacoes/boas-vindas/");
+    recentContent.getByRole("link", { name: "Survey/review — diário de desenvolvimento", exact: true }),
+  ).toHaveAttribute("href", "/26Q3_research_methodology/anotacoes/survey-review/");
 });

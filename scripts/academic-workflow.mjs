@@ -1,4 +1,4 @@
-import { access, lstat, mkdir, readFile, readdir, rename, rm, rmdir, stat, writeFile } from "node:fs/promises";
+import { copyFile, access, lstat, mkdir, readFile, readdir, rename, rm, rmdir, stat, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative, resolve } from "node:path";
 import { chromium } from "@playwright/test";
 import MarkdownIt from "markdown-it";
@@ -263,6 +263,19 @@ async function renderWorkPdf({ root, id, outputPath }) {
   const outputDirectory = dirname(outputPath);
   await mkdir(outputDirectory, { recursive: true });
   await assertNoSymlink(root, outputPath);
+  const { pagePath, workDirectory } = workSourcePaths(root, id);
+  await assertNoSymlink(root, pagePath);
+  const metadata = parse(splitFrontmatter(await readFile(pagePath, "utf8"), pagePath).yaml);
+  if (metadata.sourcePdf !== undefined) {
+    if (typeof metadata.sourcePdf !== "string" || !/^[a-zA-Z0-9][a-zA-Z0-9._-]*\.pdf$/.test(metadata.sourcePdf)) {
+      throw new Error("sourcePdf deve ser um nome de arquivo PDF dentro da pasta do trabalho.");
+    }
+    const originalPath = resolve(workDirectory, metadata.sourcePdf);
+    await assertNoSymlink(root, originalPath);
+    await verifyPdf(originalPath);
+    await copyFile(originalPath, outputPath);
+    return outputPath;
+  }
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();

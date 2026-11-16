@@ -1,20 +1,23 @@
 ---
 title: "Resumo 2 — How to Read a Paper"
-description: "Apresentação da futura síntese crítica do método de três passagens proposto por S. Keshav."
-publishedAt: "2026-09-16"
+description: "Síntese crítica do método de três passagens proposto por S. Keshav."
+publishedAt: "2026-09-27"
 tags: ["resumo", "leitura-crítica", "artigo-científico"]
 draft: false
 revisions:
+  - date: "2026-11-16"
+    description: "Integração do texto concluído e disponibilização do PDF."
   - date: "2026-09-16"
     description: "Registro inicial do plano de leitura."
   - date: "2026-09-16"
     description: "Página reduzida à apresentação pública; texto integral separado."
 type: "summary"
-status: "planned"
+status: "completed"
 dueAt: "2026-09-27T23:59:00-03:00"
 courseWeek: 2
 featured: false
-aiUsage: "IA generativa foi usada somente para estruturar e revisar linguisticamente esta apresentação pública. A declaração específica do trabalho será incluída no documento integral."
+artifact: "/documents/works/resumo-2-how-to-read-a-paper.pdf"
+aiUsage: "IA generativa foi usada somente para estruturar e revisar linguisticamente esta apresentação pública. A declaração específica do trabalho está disponível no documento integral."
 ---
 
 ## Apresentação
@@ -27,4 +30,4 @@ KESHAV, S. *How to Read a Paper*. ACM SIGCOMM Computer Communication Review, 200
 
 ## Disponibilidade
 
-O texto integral ainda não foi concluído. O PDF será disponibilizado somente depois da revisão acadêmica, editorial e de privacidade.
+O texto integral está disponível no PDF do trabalho, com aplicação do método e discussão de suas limitações.

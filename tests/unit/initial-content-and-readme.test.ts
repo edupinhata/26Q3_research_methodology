@@ -16,7 +16,7 @@ const expectedPublishedContent = {
     "processo-resumo-1-bad-career.md",
     "processo-resumo-2-how-to-read-a-paper.md",
   ],
-  works: ["resumo-1-bad-career/index.md", "resumo-2-how-to-read-a-paper/index.md"],
+  works: ["resumo-1-bad-career/index.md", "resumo-2-how-to-read-a-paper/index.md", "proposta-survey-review/index.md", "apresentacao-survey-review/index.md", "resumo-3-ai-science-focus/index.md", "resumo-4-general-scales/index.md", "resumo-5-ai-research-automation/index.md", "banca-1-forensic-agent/index.md"],
   library: [
     "how-to-read-a-paper.md",
     "ai-tools-science-focus.md",
@@ -27,7 +27,7 @@ const expectedPublishedContent = {
 } as const;
 
 const expectedDraftContent = {
-  works: ["proposta-survey-review/index.md", "proposta-pre-projeto/index.md"],
+  works: ["proposta-pre-projeto/index.md"],
 } as const;
 
 const migratedDocuments = [
@@ -104,11 +104,11 @@ describe("conteúdo autoral inicial", () => {
     expect(deliverables.find(({ id }) => id === "resumo-1-bad-career")?.status).toBe("completed");
   });
 
-  it("separa registros de processo das fontes integrais e preserva o único trabalho concluído", () => {
+  it("separa registros de processo das fontes integrais e preserva trabalhos concluídos", () => {
     expect(existsSync(resolve(projectRoot, "src/content/works/survey-review/index.md"))).toBe(false);
     expect(existsSync(resolve(projectRoot, "src/content/works/diario-pre-projeto/index.md"))).toBe(false);
 
-    for (const id of migratedDocuments.filter((id) => id !== "resumo-1-bad-career")) {
+    for (const id of migratedDocuments.filter((id) => id === "proposta-pre-projeto" )) {
       const source = readFileSync(resolve(projectRoot, "src/content/works", id, "work.md"), "utf8");
       expect(source).toContain("## Referências");
       expect(source).toContain("## Declaração de uso de inteligência artificial");
@@ -135,21 +135,9 @@ describe("conteúdo autoral inicial", () => {
       return normalized.slice(normalized.indexOf("\n---\n", 4) + 5).trim();
     };
     const surveyProcess = readFileSync(resolve(projectRoot, "src/content/notes/survey-review.md"), "utf8");
-    expect(body(surveyProcess)).toBe(`## Finalidade
-
-Esta página acompanhará o survey/review desde a proposta até a apresentação. O objetivo é manter um rastro claro das decisões: recorte, pergunta, termos de busca, critérios de seleção, organização das evidências e limites da revisão.
-
-## Decisões ainda abertas
-
-- tema e pergunta central;
-- bases e fontes de busca;
-- período e tipos de publicação;
-- critérios de inclusão e exclusão;
-- forma de extração e síntese das evidências.
-
-## Próximo marco
-
-A primeira versão deverá justificar um recorte viável e demonstrar que a pergunta pode ser respondida por uma revisão de literatura dentro do tempo da disciplina.`);
+    expect(body(surveyProcess)).toContain("## Recorte consolidado para a apresentação");
+    expect(body(surveyProcess)).toContain("../../trabalhos/apresentacao-survey-review/");
+    expect(body(surveyProcess)).toContain("## Próximos passos");
     const preProjectProcess = readFileSync(resolve(projectRoot, "src/content/notes/diario-pre-projeto.md"), "utf8");
     expect(body(preProjectProcess)).toBe(`## Por que manter um diário
 

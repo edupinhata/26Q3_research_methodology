@@ -592,3 +592,20 @@ IA utilizada somente para revisão linguística neste teste controlado.
     })).rejects.toThrow(/GitHub token/i);
   });
 });
+
+it("preserves imported PDFs and rejects paths outside the work directory", async () => {
+  const root = await createFixture();
+  const id = "resumo-3-ai-science-focus";
+  const { pagePath } = await createWork({ root, id, date: "2026-11-16" });
+  const preview = await generateWorkPdf({ root, id });
+  const original = await readFile(preview);
+  await writeFile(resolve(root, "src/content/works", id, "slides.pdf"), original);
+  const page = await readFile(pagePath, "utf8");
+  await writeFile(pagePath, page.replace("---\n", '---\nsourcePdf: "slides.pdf"\n'));
+  expect(await readFile(await generateWorkPdf({ root, id }))).toEqual(original);
+  await writeFile(pagePath, page.replace("---\n", '---\nsourcePdf: "../slides.pdf"\n'));
+  await expect(generateWorkPdf({ root, id })).rejects.toThrow(/sourcePdf/);
+  await writeFile(pagePath, page.replace("---\n", '---\nsourcePdf: "linked.pdf"\n'));
+  await symlink(resolve(root, "src/content/works", id, "slides.pdf"), resolve(root, "src/content/works", id, "linked.pdf"));
+  await expect(generateWorkPdf({ root, id })).rejects.toThrow(/simbólico/);
+});
